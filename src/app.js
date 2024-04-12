@@ -1,8 +1,9 @@
 const fs = require('fs')
 const express = require('express')
-// const handlebars = require('express-handlebars')
+const handlebars = require('express-handlebars')
 const prodCarro = require('./routes/prod.router')
-// const viewRouter = require('./routes/view.router')
+const viewRouter = require('./routes/views.router')
+const usersRouter = require('./routes/users.router')
 // const { Server } = require('socket.io')
 // app.use('/realTimeProducts', realTimeProducts)
 // const homeRouter = require('./routes/home.router')
@@ -10,9 +11,9 @@ const prodCarro = require('./routes/prod.router')
 const app = express()
 
 // Configuracion de HANDLEBARS
-// app.engine('handlebars', handlebars.engine())
-// app.set('view', `${__dirname}/views`)
-// app.set('view engine', 'handlebars')
+app.engine('handlebars', handlebars.engine())
+app.set('views', `${__dirname}/views`)
+app.set('view engine', 'handlebars')
 
 // setea la carpeta public como estatica
 app.use(express.static(`${__dirname}/../../public`))
@@ -20,6 +21,12 @@ app.use(express.static(`${__dirname}/../../public`))
 // Permitir el envio de informacion mediante Formularios y JSON 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+
+// Mostrar la pantalla de inicio
+app.use('/', viewRouter)
+
+// Mostrar el apartado de Register
+app.use('/api/users', usersRouter)
 
 // ---
 // app.use('/register', viewRouter )
