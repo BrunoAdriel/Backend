@@ -8,8 +8,13 @@
 <body>
     {{{body}}}
 
-    {{!-- {{#each scripts}}
-        <script src="/backend/src/routes/{{this}}"></script>
-    {{/each}} --}}
+
+    {{#if useWS}}
+        <script src="/socket.io/socket.io.js"></script>
+    {{/if}}
+    {{#each scripts}}
+        <script src="/js/{{this}}"></script>
+    {{/each}}
+
 </body>
 </html>

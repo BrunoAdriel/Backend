@@ -4,7 +4,8 @@ const handlebars = require('express-handlebars')
 const prodCarro = require('./routes/prod.router')
 const viewRouter = require('./routes/views.router')
 const usersRouter = require('./routes/users.router')
-// const { Server } = require('socket.io')
+const { Server } = require('socket.io')
+const chatRouter = require('./routes/views.router')
 // app.use('/realTimeProducts', realTimeProducts)
 // const homeRouter = require('./routes/home.router')
 
@@ -16,7 +17,7 @@ app.set('views', `${__dirname}/views`)
 app.set('view engine', 'handlebars')
 
 // setea la carpeta public como estatica
-app.use(express.static(`${__dirname}/../../public`))
+app.use(express.static(`${__dirname}/../public`))
 
 // Permitir el envio de informacion mediante Formularios y JSON 
 app.use(express.urlencoded({ extended: true }))
@@ -28,8 +29,9 @@ app.use('/', viewRouter)
 // Mostrar el apartado de Register
 app.use('/api/users', usersRouter)
 
-// ---
-// app.use('/register', viewRouter )
+// Mostrar el chat
+app.use('/chat', chatRouter)
+
 
 // Coneccion a "HOME"
 // app.use('/home', homeRouter)
@@ -145,6 +147,27 @@ app.delete('/products/:prodId', async (req, res)=>{
 
 
 
-app.listen(8080, () =>{
+const httpServer = app.listen(8080, () =>{
     console.log('servidor listo!')
+})
+
+// creando servidor para WebSocket
+const wsServer = new Server(httpServer)
+
+const messages = []
+
+// evento cunado un cliente se conecta
+wsServer.on('connection', (clientSocket)=>{
+    console.log(`Cliente conectado, su ID es ${clientSocket.id} `)
+
+    for(const message of messages){
+        clientSocket.emit('message', message )
+    }
+
+    // chat de clientes
+    clientSocket.on('new-message', (msg) => {
+        const message = {id: clientSocket.id, text: msg}
+        messages.push(message)
+        wsServer.emit('message', message )
+    })
 })
