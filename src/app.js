@@ -7,8 +7,7 @@ const usersRouter = require('./routes/users.router')
 const { Server } = require('socket.io')
 const chatRouter = require('./routes/views.router')
 const homeRouter = require('./routes/views.router')
-// app.use('/realTimeProducts', realTimeProducts)
-// const homeRouter = require('./routes/home.router')
+const realTimeRouter = require('./routes/views.router')
 
 const app = express()
 
@@ -38,12 +37,7 @@ app.use('/chat', chatRouter)
 app.use('/home', homeRouter)
 
 // Coneccion a "RealTimeProducts"
-// app.use('/realTimeProducts', realTimeProducts)
-
-// Coneccion WebSocket
-// const wsServer = new Server(httpServer)
-
-// app.set('ws', wsServer)
+app.use('/realTimeProducts', realTimeRouter)
 
 // envio de datos de prodCarro a el path
 app.use('/api/carts', prodCarro)
@@ -62,9 +56,7 @@ app.get('/products', async (req, res) => {
     if (!isNaN(limit)) {
         products = products.slice(0, limit);
     }
-
     res.json(products);
-
 });
 
 app.get('/products/:pId', async (req, res) => {
@@ -145,9 +137,7 @@ app.delete('/products/:prodId', async (req, res)=>{
     res.json({ status: 'success', message: 'Producto eliminado correctamente' })
 })
 
-
-
-
+// coneccion servidor
 const httpServer = app.listen(8080, () =>{
     console.log('servidor listo!')
 })
