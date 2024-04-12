@@ -6,6 +6,7 @@ const viewRouter = require('./routes/views.router')
 const usersRouter = require('./routes/users.router')
 const { Server } = require('socket.io')
 const chatRouter = require('./routes/views.router')
+const homeRouter = require('./routes/views.router')
 // app.use('/realTimeProducts', realTimeProducts)
 // const homeRouter = require('./routes/home.router')
 
@@ -34,7 +35,7 @@ app.use('/chat', chatRouter)
 
 
 // Coneccion a "HOME"
-// app.use('/home', homeRouter)
+app.use('/home', homeRouter)
 
 // Coneccion a "RealTimeProducts"
 // app.use('/realTimeProducts', realTimeProducts)

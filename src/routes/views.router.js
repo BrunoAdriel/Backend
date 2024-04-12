@@ -1,4 +1,5 @@
-const { Router } =require('express')   
+const { Router } =require('express')
+const fs = require('fs')   
 
 const router = Router()
 
@@ -27,5 +28,24 @@ router.get('/chat', (_, res)=>{
         scripts: [ 'index.js' ]
     })
 })
+
+// Router Home
+router.get('/home', async(_, res) => {
+    try {
+        // Lee el contenido del archivo FileProducts.json
+        const productData = await fs.promises.readFile(`src/FileProducts.json`, 'utf8');
+        // Parsea el contenido del archivo como JSON
+        const products = JSON.parse(productData);
+        
+        res.render('home', {
+            title: 'Home',
+            products
+        });
+    } catch (error) {
+        console.error("Error al cargar los productos:", error);
+        res.status(500).json({ error: 'Error al cargar los productos' });
+    }
+});
+
 
 module.exports = router
