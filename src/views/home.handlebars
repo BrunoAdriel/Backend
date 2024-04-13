@@ -1,8 +1,10 @@
-<div>
+<div class="container">
     {{#each products}}
     <section>
         <h3>{{this.title}}</h3>
-        <p>{{this.price}}</p>
+            <div>
+                <p>{{this.price}}</p>
+            </div>
     </section>
     {{/each}}
 </div>

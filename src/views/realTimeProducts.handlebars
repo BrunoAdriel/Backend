@@ -1,0 +1,35 @@
+<div class="container">
+    <form action="/realTimeProducts" id="prodsForm" method="post" enctype="application/x-www-form-urlencoded">
+        <h3>Agregar Producto</h3>
+            <section>
+                <label>Nombre:</label>
+                <input type="text" id="prodTitle" name="title"/>
+            </section>
+            <section>
+                <label>Descripcion:</label>
+                <input type="text" id="prodDescription" name="description"/>
+            </section>
+            <section>
+                <label>Precio:</label>
+                <input type="text" id="prodPrice" name="price"/>
+            </section>
+            <section>
+                <label>Imagen:</label>
+                <input type="text" id="prodThumbnail" name="thumbnail"/>
+            </section>
+            <section>
+                <label>Codigo:</label>
+                <input type="text" id="prodCode" name="code"/>
+            </section>
+            <section>
+                <label>Stock:</label>
+                <input type="text" id="prodStock" name="stock"/>
+            </section>
+            <button type="submit" id="addProduct">Agregar!</button>
+    </form>
+</div>
+
+<div class="container" id="prodsFeed">
+    {{#each products}}
+    {{/each}}
+</div>

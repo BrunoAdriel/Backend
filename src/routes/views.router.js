@@ -1,18 +1,10 @@
 const { Router } =require('express')
 const fs = require('fs')
 const { Server } = require('socket.io')    
-const ProductManager = require(`${__dirname}/../../public/js/productManager`)
+const ProductManager = require('../../public/js/productManager')
 
+const manager = new ProductManager(`${__dirname}/../FileProducts.json`)
 const router = Router()
-
-const filename = `${__dirname}/../../FileProducts.json`
-const productsManager = new ProductManager(filename)
-
-const initializeProductManager = async () =>{
-    // await productsManager.initialize();
-}
-
-initializeProductManager()
 
 // handle index
 router.get('/', (_,res)=>{
@@ -57,14 +49,56 @@ router.get('/home', async(_, res) => {
     }
 });
 
-// Router realTimeProducts
 
-router.get('/realTimeProducts', async (req,res)=>{
+router.get('/realTimeProducts', async (_, res)=>{
     try{
+        const products = await manager.getProducts()
 
-    }catch{
+        const prodsData = products.map(prod =>({
+            title: prod.title,
+            description: prod.description,
+            price: prod.price,
+            thumbnail: prod.thumbnail,
+            code: prod.code,
+            stock: prod.stock
+        }))
 
+        res.render('realTimeProducts',{
+            title: 'realTimeProducts',
+            // h1: 'Carga de Productos a tiempo real',
+            products: prodsData,
+            script: ['realTimeProducts.js'],
+            useWS: true
+        })
+    }catch(error){
+        console.error("Error al cargar los productos:",error)
+            res.status(500).send('Error al cargar los productos')
     }
+})
+
+router.post('/realTimeProducts', async (req, res) => {
+    console.log(req.body)
+    res.json(req.body)
+    // agrego el producto nuevo
+    try{
+        await manager.addProduct(
+            req.body.title,
+            req.body.description,
+            +req.body.price,
+            req.body.thumbnail,
+            req.body.code,
+            +req.body.stock);
+
+        // res.redirect('/home')
+    }catch(error){
+        console.error("Error al agregar el producto nuevo", error)
+        res.status(500).send('Error al agregar el producto nuevo')
+    }
+
+
+    // notifico a los clientes X ws
+
+    req.app.get('ws').emit('newProduct', req.body)
 })
 
 

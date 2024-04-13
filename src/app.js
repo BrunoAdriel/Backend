@@ -146,6 +146,10 @@ const httpServer = app.listen(8080, () =>{
 const wsServer = new Server(httpServer)
 
 const messages = []
+app.set('ws', wsServer);
+
+// emit en el servidor para notificar a todos los clientes que se agrego un nuevo producto
+// wsServer.emit
 
 // evento cunado un cliente se conecta
 wsServer.on('connection', (clientSocket)=>{

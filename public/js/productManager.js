@@ -1,4 +1,3 @@
-
 const fs = require('fs').promises;
 
 class ProductManager {
@@ -16,7 +15,7 @@ class ProductManager {
 
     async #readFile() {
         try {
-            const fileData = await fs.readFile(this.path, 'utf-8');
+            const fileData = await fs.readFile(this.path, 'utf-8');;
             this.#products = JSON.parse(fileData);
             this.#updateLastProductId();
         } catch (error) {
@@ -67,7 +66,7 @@ class ProductManager {
         const findProductCode = existingProduct.find(field => field.code === code)
 
         if (!findProductCode) {
-            const product = { id: this.#getNewId(), title, description, price: numericPrice, thumbnail, code, status, stock: numericStock };
+            const product = { id: this.#getNewId(), title, description, price: numericPrice, thumbnail, code, stock: numericStock };
             this.#products.push(product);
             await this.#saveFile();
             console.log('Agregado Correctamente');
