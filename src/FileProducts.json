@@ -66,9 +66,9 @@
     "id": 8,
     "title": "test",
     "description": "test",
-    "price": 999,
+    "price": 900,
     "thumbnail": "test.img",
     "code": "000",
-    "stock": null
+    "stock": 90
   }
 ]

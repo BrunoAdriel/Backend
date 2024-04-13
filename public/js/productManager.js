@@ -15,7 +15,7 @@ class ProductManager {
 
     async #readFile() {
         try {
-            const fileData = await fs.readFile(this.path, 'utf-8');;
+            const fileData = await fs.readFile(this.path, 'utf-8');
             this.#products = JSON.parse(fileData);
             this.#updateLastProductId();
         } catch (error) {
@@ -38,15 +38,9 @@ class ProductManager {
         return this.#lastProductId++;
     }
 
-    async addProduct(title, description, price, thumbnail, code, status, stock) {
+    async addProduct(title, description, price, thumbnail, code, stock) {
         if (!title || !description || !code) {
             throw new Error('Debe completar todos los campos');
-        }
-
-        if (typeof status === 'undefined' || status === true || status === 'true') {
-            status = true;
-        } else {
-            status = false;
         }
 
         if (!thumbnail) {

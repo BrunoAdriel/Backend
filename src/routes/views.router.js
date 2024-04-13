@@ -65,7 +65,6 @@ router.get('/realTimeProducts', async (_, res)=>{
 
         res.render('realTimeProducts',{
             title: 'realTimeProducts',
-            // h1: 'Carga de Productos a tiempo real',
             products: prodsData,
             script: ['realTimeProducts.js'],
             useWS: true
