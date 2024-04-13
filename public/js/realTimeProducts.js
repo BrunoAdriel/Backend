@@ -6,13 +6,13 @@ socket.on('newProduct', (product)=>{
 
     container.innerHTML += `
     <div>
-    <h3>${title}</h3>
-    <img src="${thumbnail}" alt="${title}" />
+    <h3>${product.title}</h3>
+    <img src="${product.thumbnail}" alt="${product.title}" />
         <section>
-            <p>${descripcion}</p>
-            <p>$ ${price}</p>
-            <p>Stock disponible: ${stock}</p>
-            <p>Codigo del producto: ${code}</p>
+            <p>${product.descripcion}</p>
+            <p>$ ${product.price}</p>
+            <p>Stock disponible: ${product.stock}</p>
+            <p>Codigo del producto: ${product.code}</p>
         </section>
 </div>`
 })

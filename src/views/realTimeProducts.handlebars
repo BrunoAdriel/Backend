@@ -25,11 +25,21 @@
                 <label>Stock:</label>
                 <input type="text" id="prodStock" name="stock"/>
             </section>
-            <button type="submit" id="addProduct">Agregar!</button>
+            <button type="submit" id="addProduct" value="Agregar">Agregar!</button>
     </form>
 </div>
 
 <div class="container" id="prodsFeed">
-    {{#each products}}
-    {{/each}}
+{{#each products}}
+<div>
+    <h3>{{title}}</h3>
+    <img src="{{thumbnail}}" alt="{{title}}" />
+    <section>
+        <p>{{description}}</p>
+        <p>$ {{price}}</p>
+        <p>Stock disponible: {{stock}}</p>
+        <p>Codigo del producto: {{code}}</p>
+    </section>
+</div>
+{{/each}}
 </div>

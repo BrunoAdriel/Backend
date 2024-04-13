@@ -78,7 +78,6 @@ router.get('/realTimeProducts', async (_, res)=>{
 
 router.post('/realTimeProducts', async (req, res) => {
     console.log(req.body)
-    res.json(req.body)
     // agrego el producto nuevo
     try{
         await manager.addProduct(
@@ -89,13 +88,11 @@ router.post('/realTimeProducts', async (req, res) => {
             req.body.code,
             +req.body.stock);
 
-        // res.redirect('/home')
+        res.redirect('/realTimeProducts')
     }catch(error){
         console.error("Error al agregar el producto nuevo", error)
         res.status(500).send('Error al agregar el producto nuevo')
     }
-
-
     // notifico a los clientes X ws
 
     req.app.get('ws').emit('newProduct', req.body)
