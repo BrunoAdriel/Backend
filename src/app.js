@@ -11,6 +11,8 @@ const realTimeRouter = require('./routes/views.router')
 const userModel =require('./routes/userModel.router')
 const mongoose = require('mongoose')
 
+
+
 const app = express()
 
 // Configuracion de HANDLEBARS
@@ -27,6 +29,10 @@ app.use(express.json())
 
 // Mostrar la pantalla de inicio
 app.use('/', viewRouter)
+
+// conexion a paginacion
+
+
 
 // Mostrar el apartado de Register
 app.use('/api/users', usersRouter)
@@ -141,12 +147,12 @@ app.delete('/products/:prodId', async (req, res)=>{
     res.json({ status: 'success', message: 'Producto eliminado correctamente' })
 })
 
-// coneccion servidor
+// // coneccion servidor
 // const httpServer = app.listen(8080, () =>{
 //     console.log('servidor listo!')
 // })
 
-// creando servidor para WebSocket
+// // creando servidor para WebSocket
 // const wsServer = new Server(httpServer)
 
 // const messages = []
@@ -170,6 +176,7 @@ app.delete('/products/:prodId', async (req, res)=>{
 
 
 // Coneccion Mongoose
+
 const main = async () =>{
     await mongoose.connect(
         'mongodb+srv://adrielbruno08:Kq0gHxHj98JQCrBi@codertest.iijpsgz.mongodb.net/?retryWrites=true&w=majority&appName=CoderTest',
@@ -177,6 +184,7 @@ const main = async () =>{
             dbName: 'coder-test'
         }
     )
+
 
     app.listen(8080, () => {
         console.log('Server up!')
