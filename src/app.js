@@ -8,6 +8,8 @@ const { Server } = require('socket.io')
 const chatRouter = require('./routes/views.router')
 const homeRouter = require('./routes/views.router')
 const realTimeRouter = require('./routes/views.router')
+const userModel =require('./routes/userModel.router')
+const mongoose = require('mongoose')
 
 const app = express()
 
@@ -32,11 +34,13 @@ app.use('/api/users', usersRouter)
 // Mostrar el chat
 app.use('/chat', chatRouter)
 
+// Conexion a userModel de Moongose
+app.use('/api/userModel', userModel)
 
-// Coneccion a "HOME"
+// Conexion a "HOME"
 app.use('/home', homeRouter)
 
-// Coneccion a "RealTimeProducts"
+// Conexion a "RealTimeProducts"
 app.use('/realTimeProducts', realTimeRouter)
 
 // envio de datos de prodCarro a el path
@@ -138,31 +142,44 @@ app.delete('/products/:prodId', async (req, res)=>{
 })
 
 // coneccion servidor
-const httpServer = app.listen(8080, () =>{
-    console.log('servidor listo!')
-})
+// const httpServer = app.listen(8080, () =>{
+//     console.log('servidor listo!')
+// })
 
 // creando servidor para WebSocket
-const wsServer = new Server(httpServer)
+// const wsServer = new Server(httpServer)
 
-const messages = []
-app.set('ws', wsServer);
+// const messages = []
+// app.set('ws', wsServer);
 
-// emit en el servidor para notificar a todos los clientes que se agrego un nuevo producto
-// wsServer.emit
+// // evento cunado un cliente se conecta
+// wsServer.on('connection', (clientSocket)=>{
+//     console.log(`Cliente conectado, su ID es ${clientSocket.id} `)
 
-// evento cunado un cliente se conecta
-wsServer.on('connection', (clientSocket)=>{
-    console.log(`Cliente conectado, su ID es ${clientSocket.id} `)
+//     for(const message of messages){
+//         clientSocket.emit('message', message )
+//     }
 
-    for(const message of messages){
-        clientSocket.emit('message', message )
-    }
+//     // chat de clientes
+//     clientSocket.on('new-message', (msg) => {
+//         const message = {id: clientSocket.id, text: msg}
+//         messages.push(message)
+//         wsServer.emit('message', message )
+//     })
+// })
 
-    // chat de clientes
-    clientSocket.on('new-message', (msg) => {
-        const message = {id: clientSocket.id, text: msg}
-        messages.push(message)
-        wsServer.emit('message', message )
+
+// Coneccion Mongoose
+const main = async () =>{
+    await mongoose.connect(
+        'mongodb+srv://adrielbruno08:Kq0gHxHj98JQCrBi@codertest.iijpsgz.mongodb.net/?retryWrites=true&w=majority&appName=CoderTest',
+        {
+            dbName: 'coder-test'
+        }
+    )
+
+    app.listen(8080, () => {
+        console.log('Server up!')
     })
-})
+}
+main()
