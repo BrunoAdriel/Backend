@@ -1,14 +1,25 @@
-<div>Productos mediante paginacion</div>
-<div>Pagina Actual {{products.page}}</div>
+<div>Productos mediante paginación</div>
+<div>Página Actual {{products.page}}</div>
 
 <div>
     <ul>
         {{#each products.docs}}
-            <li>{{title}} {{description}}</li>
-
+            <li id="item-prod-{{id}}">{{title}} {{price}}</li>
         {{/each}}
     </ul>
-
+    <div>
+        <h2>Filtros:</h2>
+        <form action="/pagination" method="GET" id="filtros_products">
+            <input type="text" name="title" id="in_title"/>
+            <label for="asc">Filtro menor precio:</label>
+            <input type="radio" id="asc" name="price" value="asc" data-order="asc"/>                
+            <label for="des">Filtro mayor precio:</label>
+            <input type="radio" id="des" name="price" value="desc" data-order="desc"/>
+            <label for="noFilter">Quitar fultros:</label>
+            <input type="radio" id="noFilter" name="price" value="none" >
+            <button type="submit">Filtrar</button>
+        </form>
+    </div>
     {{#if products.hasPrevPage}}
         <a href="/pagination?page={{products.prevPage}}">Anterior</a>
     {{/if}}
@@ -16,3 +27,12 @@
         <a href="/pagination?page={{products.nextPage}}">Siguiente</a>
     {{/if}}
 </div>
+
+
+        {{!-- <section>
+            <ul id="prods_list">
+                {{#each products}}
+                    <li id="item-prod-{{id}}">{{title}} {{description}}</li>
+                {{/each}}
+            </ul>
+        </section> --}}

@@ -14,3 +14,36 @@ socket.on('message',(event)=>{
 
     document.querySelector('#chatBox').appendChild(paragraph)
 })
+
+$('#filtros_products').submit(function(e){
+    e.preventDeFault()
+
+    const formValues = $(this).serializeArray()
+
+    const requestBody =Object.fromEntries(
+        formValues.map(fv=>[fv.name, fv.value])
+    )
+
+    $.getJSON('/pagination', requestBody, function(data){
+    // Renderizar usuarios
+        $('#prods_list ul')
+            .html(
+                data.map(u=>`
+                <li id="item-prod-${u.id}">
+                    ${u.title}, ${u.description}, ${u.price} y ${u.stock}
+                    <a href='#' onclick="addProduct('${u.id}')">Eliminar</a>
+                </li>
+                `).join('')
+            )
+    })
+})
+
+function addProduct(prodId){
+    $.ajax(`/pagination/${prodId}`,{
+        dataType: 'json',
+        method: 'success',
+        success: function(){
+            $(`#item-prod-${prodId}`)
+        }
+    })
+}
