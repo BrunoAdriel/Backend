@@ -1,0 +1,18 @@
+<div>Productos mediante paginacion</div>
+<div>Pagina Actual {{products.page}}</div>
+
+<div>
+    <ul>
+        {{#each products.docs}}
+            <li>{{title}} {{description}}</li>
+
+        {{/each}}
+    </ul>
+
+    {{#if products.hasPrevPage}}
+        <a href="/pagination?page={{products.prevPage}}">Anterior</a>
+    {{/if}}
+    {{#if products.hasNextPage}}
+        <a href="/pagination?page={{products.nextPage}}">Siguiente</a>
+    {{/if}}
+</div>

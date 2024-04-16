@@ -10,6 +10,7 @@ const homeRouter = require('./routes/views.router')
 const realTimeRouter = require('./routes/views.router')
 const userModel =require('./routes/userModel.router')
 const mongoose = require('mongoose')
+const paginationRouter =require('./routes/pagination.router')
 
 
 
@@ -31,7 +32,7 @@ app.use(express.json())
 app.use('/', viewRouter)
 
 // conexion a paginacion
-
+app.use('/pagination', paginationRouter)
 
 
 // Mostrar el apartado de Register
