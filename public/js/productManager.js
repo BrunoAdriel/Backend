@@ -81,9 +81,9 @@ class ProductManager {
 
     async getProductById(id) {
         const existingProducts = await this.getProducts();
-        const filterProductById = existingProducts.find(el => el.id === id);
+        const filterProductById = await existingProducts.find(el => el.id === id);
         if (filterProductById) {
-            return filterProductById;
+            return await filterProductById;
         } else {
             throw new Error('Not Found: El ID solicitado no existe.');
         }

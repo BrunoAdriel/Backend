@@ -1,15 +1,26 @@
 {
-  "id": "b1676a9c-ff18-4647-b0bc-e9af9d1ab25c",
+  "id": 1,
   "products": [
     {
-      "title": "dorito",
-      "description": "Description",
+      "id": 1,
+      "title": "title1",
+      "description": "Description1",
       "price": 100,
       "thumbnail": "thumbnail",
       "code": 111,
-      "stock": 10,
+      "stock": 20,
+      "quantity": 1
+    },
+    {
+      "id": 3,
+      "quantity": 1
+    },
+    {
       "id": 2,
-      "quantity": 3
+      "title": "title2",
+      "description": "Description2",
+      "price": 700,
+      "quantity": 1
     }
   ]
 }
