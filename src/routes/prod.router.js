@@ -9,7 +9,7 @@ const router = Router();
 
 const manager = new ProductManager(`${__dirname}/../FileProducts.json`)
 
-// filtrar por cantidad de productos pasados por  query
+// filtrar por cantidad de productos pasados por query
 router.get('/', async (req, res)=>{
     try{
         const prodFilter = req.query.prodFilter
@@ -28,39 +28,6 @@ router.get('/', async (req, res)=>{
         res.status(500).json({error:message, message:'Error al cargar los productos con el filtro numerico'})
     }
 })
-
-// router.get('/:pid', async (req,res)=>{
-//     const prodId = parseInt(req.params.pid)
-//     const prod = await manager.getProductById(prodId)
-//     try{
-//         return res.status(200).json(prod)
-//     }catch(error){
-//         res.status(500).json({error: error.message, message:'Error al buscar producto por ID' })
-//     }
-// })
-
-
-// router.post('/', async (req, res)=>{
-//     const carritoData = await fs.promises.readFile(__dirname + '/../carrito.json', 'utf-8');
-//     console.log(carritoData)
-//     try{
-
-//     }catch{
-
-//     }
-// })
-
-
-
-// router.delete('/:pid', async(req, res)=>{
-//     const prodId = parseInt(req.params.pid)
-//     await manager.deleteProduct(prodId)
-//     try{
-//         return res.status(200).json({message: 'Se elimino correctamente el producto'})
-//     }catch(error){
-//         res.status(500).json({error: error.message, message:'Error al eliminar producto'})
-//     }
-// })
 
 router.post('/:pid', async (req, res) => {
 try {
@@ -199,6 +166,23 @@ router.delete('/:cid/product/:pid', async(req, res) => {
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
+
+// eliminar todos los productos de carrito
+router.delete('/:cid', async (req,res)=>{
+    try{const cid = parseInt(req.params.cid)
+    const carritoData = await fs.promises.readFile(__dirname + '/../carrito.json', 'utf-8');
+    const carrito = JSON.parse(carritoData);
+    if (carrito.id !== parseInt(cid)) {
+        return res.status(404).json({ status: 'error', message: 'Carrito no encontrado' });
+    }else{
+        carrito.products =[];
+        await fs.promises.writeFile(`${__dirname}/../carrito.json`, JSON.stringify(carrito, null, 2), 'utf-8');
+        return res.status(200).json({ message: 'Productos eliminados del carrito' });
+    }}catch (error) {
+        console.error('Error al eliminar Todos los productos del carrito:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+})
 
 // Cambiar la quantity del producto
 router.put('/:cid/product/:pid', async(req,res)=>{
