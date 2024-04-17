@@ -2,7 +2,6 @@ const { Router } = require('express');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');  //utilizo la biblioteca "uuid" para poder generar el id
 const ProductManager = require('../../public/js/productManager');
-const { title } = require('process');
 
 
 const router = Router();

@@ -4,7 +4,9 @@
 <div>
     <ul>
         {{#each products.docs}}
-            <li id="item-prod-{{id}}">{{title}} {{price}}</li>
+            <li id="item-prod-{{id}}">{{title}} {{price}}
+                <button id="addToCartBtn" data-product="{{id}}">Agregar a carrito</button>
+            </li>
         {{/each}}
     </ul>
     <div>
@@ -28,11 +30,3 @@
     {{/if}}
 </div>
 
-
-        {{!-- <section>
-            <ul id="prods_list">
-                {{#each products}}
-                    <li id="item-prod-{{id}}">{{title}} {{description}}</li>
-                {{/each}}
-            </ul>
-        </section> --}}
