@@ -1,6 +1,5 @@
 const { Router } = require('express');
 const fs = require('fs').promises;
-const { v4: uuidv4 } = require('uuid');  //utilizo la biblioteca "uuid" para poder generar el id
 
 const Products = require('../models/products.model');
 
@@ -11,23 +10,19 @@ router.get('/', async (req, res) => {
     try {
         const prodFilter = req.query.prodFilter;
         let products;
-
-        // Obtener todos los productos de la base de datos
         if (prodFilter) {
             const numberParse = parseInt(prodFilter, 10);
             if (numberParse <= 0 || isNaN(numberParse) || !prodFilter) {
                 res.status(404).json({ message: 'Error el filtro de numero debe ser un numero mayor a 0 ' });
                 return;
             } else {
-                // Limitar la cantidad de productos devueltos según el filtro
                 products = await Products.products.find({}).limit(numberParse);
             }
         } else {
-            // Obtener todos los productos sin límite
             products = await Products.products.find({});
         }
-
         res.json(products);
+    
     } catch (error) {
         console.error('Error al cargar los productos:', error);
         res.status(500).json({ error: 'Error interno del servidor' });
@@ -75,7 +70,6 @@ router.post('/:pid', async (req, res) => {
                 quantity: 1
             });
         }
-
         await fs.writeFile(__dirname + '/../carrito.json', JSON.stringify(carrito, null, 2));
         res.json({ status: 'success', carrito});
 
@@ -92,7 +86,6 @@ router.get('/:cid', async (req,res)=>{
     const cid = parseInt(req.params.cid);
     const carritoData = await fs.readFile(__dirname + '/../carrito.json', 'utf-8')
     const carrito = JSON.parse(carritoData);
-    
     const prodFound = carrito.products.find(p=>p.id === cid)
 
     if(!prodFound){
@@ -113,11 +106,9 @@ router.post('/:cid/product/:pid', async (req, res) => {
         if (carrito.id !== parseInt(cid)) {
             return res.status(404).json({ status: 'error', message: 'Carrito no encontrado' });
         }
-        
-        // Convertir el `pid` a un tipo compatible con el `id` del carrito
+
         const productId = parseInt(pid);
         
-        // Verificar si el producto ya está en el carrito
         const product = await Products.products.findOne({ id: productId });
 
         if (!product) {
@@ -125,7 +116,6 @@ router.post('/:cid/product/:pid', async (req, res) => {
         }
         
         const existingProductIndex = carrito.products.findIndex(prod => prod.id === productId);
-
         if (existingProductIndex !== -1) {
             carrito.products[existingProductIndex].quantity += 1;
         } else {
@@ -211,9 +201,8 @@ router.put('/:cid/product/:pid', async(req,res)=>{
         if (quantity > product.stock) {
             return res.status(400).json({ message: 'La cantidad supera el stock del producto' });
         }
-        // Actualizar la cantidad del producto en el carrito
-        carrito.products[index].quantity = quantity;
 
+        carrito.products[index].quantity = quantity;
         await fs.writeFile(__dirname + '/../carrito.json', JSON.stringify(carrito, null, 2));
         res.json({ status: 'success', carrito });
     }catch (error) {
