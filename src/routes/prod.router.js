@@ -16,10 +16,10 @@ router.get('/', async (req, res) => {
                 res.status(404).json({ message: 'Error el filtro de numero debe ser un numero mayor a 0 ' });
                 return;
             } else {
-                products = await Products.products.find({}).limit(numberParse).select({});
+                products = await Products.products.find({}).limit(numberParse).select('-__v');
             }
         } else {
-            products = await Products.products.find({}).select({});
+            products = await Products.products.find({}).select('-__v');
         }
         res.json(products);
     
