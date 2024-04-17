@@ -23,4 +23,19 @@ router.get('/', async (req,res)=>{
     })
 })
 
+// Agregar el producto aal carrito
+// let carrito = [];
+
+
+// router.post('/:id', async (req, res) => {
+//     try {
+//         const product = await prodModel.findById(req.params.id);
+//         carrito.push(product); // Agregar el producto al carrito
+//         res.status(200).json({ success: true, carrito });
+//     } catch (error) {
+//         console.error('Error al agregar producto al carrito:', error);
+//         res.status(500).json({ success: false, error: 'Error al agregar producto al carrito' });
+//     }
+// });
+// console.log(carrito)
 module.exports = router

@@ -1,87 +1,102 @@
 const { Router } = require('express');
-const fs = require('fs');
+const fs = require('fs').promises;
 const { v4: uuidv4 } = require('uuid');  //utilizo la biblioteca "uuid" para poder generar el id
-const ProductManager = require('../../public/js/productManager');
+// const ProductManager = require('../../public/js/productManager');
+const Products = require('../models/products.model');
 
-
+// Products.products.find({}).then(docs => {
+//     console.log('Productos encontrados:', docs);
+// }).catch(err => {
+//     console.error('Error al buscar productos:', err);
+// });
 const router = Router();
 
-const manager = new ProductManager(`${__dirname}/../FileProducts.json`)
+// const manager = new ProductManager(`${__dirname}/../FileProducts.json`)
 
 // filtrar por cantidad de productos pasados por query
-router.get('/', async (req, res)=>{
-    try{
-        const prodFilter = req.query.prodFilter
-        const products =  await manager.getProducts()
-        if(prodFilter){
-            const numberParse = parseInt(prodFilter, 10)
-            if(numberParse <= 0 || isNaN(numberParse)|| !prodFilter){
-                numberParse = 10;
-                res.status(404).json({ message: 'Error el filtro de numero debe ser un numero mayor a 0 '})
-            }else{
-                const prodLimited = products.slice(0, numberParse)
-                res.json(prodLimited)
-            }
-        }else{ res.json(products) }
-    }catch{
-        res.status(500).json({error:message, message:'Error al cargar los productos con el filtro numerico'})
-    }
-})
-
-router.post('/:pid', async (req, res) => {
-try {
-
-    const products =  await manager.getProducts()
-    const pid = await parseInt(req.params.pid);
-
-    // Busca el producto solicitado
-    const productToAdd = products.find(product => product.id === pid);
-
-    if (!productToAdd) {
-        return res.status(404).json({ status: 'error', message: 'Producto no encontrado' });
-    }
-    let carrito;
+router.get('/', async (req, res) => {
     try {
-      // Lee el carrito existente
-        const carritoData = await fs.promises.readFile(__dirname + '/../carrito.json', 'utf-8');
+        const prodFilter = req.query.prodFilter;
+        let products;
 
-        carrito = JSON.parse(carritoData);
-        const carritoId = 1; //antes tenia "uuidv4"
-        carrito = {
-        id: carritoId,
-        products: []
-    };
+        // Obtener todos los productos de la base de datos
+        if (prodFilter) {
+            const numberParse = parseInt(prodFilter, 10);
+            if (numberParse <= 0 || isNaN(numberParse) || !prodFilter) {
+                res.status(404).json({ message: 'Error el filtro de numero debe ser un numero mayor a 0 ' });
+                return;
+            } else {
+                // Limitar la cantidad de productos devueltos según el filtro
+                products = await Products.find({}).limit(numberParse);
+            }
+        } else {
+            // Obtener todos los productos sin límite
+            products = await Products.products.find({});
+        }
+
+        res.json(products);
     } catch (error) {
-        console.error('No se pudo leer el archivo carrito.json o no existe, creando uno nuevo.', error);
+        console.error('Error al cargar los productos:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
     }
-
-    // Verificar si el carrito ya tiene productos
-    if (!Array.isArray(carrito.products)) {
-      // Si carrito.products no es un array, inicialízalo como un array vacío
-    carrito.products = [];
-    }
-    // Verifica si el producto ya existe en el carrito
-    const existingProductIndex = carrito.products.findIndex(product => product.id === productId);
-
-    if (existingProductIndex !== -1) {
-      // Si el producto ya existe, actualizar la cantidad
-    carrito.products[existingProductIndex].quantity += quantity;
-    } else {
-    carrito.products.push({
-        ...productToAdd,
-        quantity: 1
-    });
-    }
-
-    await fs.promises.writeFile(__dirname + '/../carrito.json', JSON.stringify(carrito, null, 2));
-
-    // Responder con el carrito actualizado
-    res.json({ status: 'success', carrito}); //El id lo agrego aca ya que en el parametro del carrito no me lo agrega, json no llega :'(
-} catch (error) {
-    console.error('Error al agregar producto al carrito:', error);
-    res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
-}
 });
+
+// Ruta POST para agregar un producto al carrito
+router.post('/:pid', async (req, res) => {
+    try {
+        const pid = parseInt(req.params.pid);
+        const productToAdd = await Products.products.findOne({ id: pid });
+
+        if (!productToAdd) {
+            return res.status(404).json({ status: 'error', message: 'Producto no encontrado' });
+        }
+
+        let carrito;
+        try {
+            // Lee el carrito existente
+            const carritoData = await fs.readFile(__dirname + '/../carrito.json', 'utf-8');
+            carrito = JSON.parse(carritoData);
+        } catch (error) {
+            console.error('No se pudo leer el archivo carrito.json o no existe, creando uno nuevo.', error);
+            // Si hay un error al leer el archivo, inicializa el carrito como un objeto vacío
+            carrito = { id: 1, products: [] };
+        }
+
+        // Verificar si el carrito ya tiene productos
+        if (!Array.isArray(carrito.products)) {
+            // Si carrito.products no es un array, inicialízalo como un array vacío
+            carrito.products = [];
+        }
+
+        // Verifica si el producto ya existe en el carrito
+        const existingProductIndex = carrito.products.findIndex(product => product.id === pid);
+
+        if (existingProductIndex !== -1) {
+            // Si el producto ya existe, actualizar la cantidad
+            carrito.products[existingProductIndex].quantity += 1;
+        } else {
+            carrito.products.push({
+                id: productToAdd.id,
+                title: productToAdd.title,
+                description: productToAdd.description,
+                price: productToAdd.price,
+                thumbnail: productToAdd.thumbnail,
+                code: productToAdd.code,
+                stock: productToAdd.stock,
+                quantity: 1
+            });
+        }
+
+        await fs.writeFile(__dirname + '/../carrito.json', JSON.stringify(carrito, null, 2));
+
+        // Responder con el carrito actualizado
+        res.json({ status: 'success', carrito });
+    } catch (error) {
+        console.error('Error al agregar producto al carrito:', error);
+        res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
+    }
+});
+
 
 
 //Ruta GET x ID

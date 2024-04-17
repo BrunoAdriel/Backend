@@ -1,13 +1,26 @@
+// const ProductManager = require('./productManager')
+
+// const manager = new ProductManager(``)
+
 // agregar alcarritocon el boton
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const btnAddToCart = document.querySelectorAll('#addToCartBtn');
     btnAddToCart.forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', async () => {
             const productId = button.dataset.product;
-            console.log('Botón de agregar al carrito clickeado. ID del producto:', productId);
-            // Aquí puedes agregar el código para enviar la solicitud POST al servidor
-            // Recuerda que productId es el ID del producto que necesitas enviar al servidor
+            try {
+                const response = await fetch(`/api/carts/${productId}`, { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    console.log('Producto agregado al carrito correctamente');
+                } else {
+                    console.error('Error al agregar producto al carrito');
+                }
+            } catch (error) {
+                console.error('Error al agregar producto al carrito:', error);
+            }
         });
     });
 });
