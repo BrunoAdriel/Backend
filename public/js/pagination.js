@@ -1,30 +1,33 @@
-// const ProductManager = require('./productManager')
-
-// const manager = new ProductManager(``)
-
-// agregar alcarritocon el boton
 
 
 document.addEventListener('DOMContentLoaded', () => {
     const btnAddToCart = document.querySelectorAll('#addToCartBtn');
     btnAddToCart.forEach(button => {
         button.addEventListener('click', async () => {
-            const productId = button.dataset.product;
-            try {
-                const response = await fetch(`/api/carts/${productId}`, { method: 'POST' });
-                const data = await response.json();
-                if (data.success) {
-                    console.log('Producto agregado al carrito correctamente');
-                } else {
-                    console.error('Error al agregar producto al carrito');
-                }
+            try{
+            const productId = button.dataset.productId;
+            const response = await fetch(`/api/carts/`)
+            const data = await response.json();
+            console.log(data)
             } catch (error) {
-                console.error('Error al agregar producto al carrito:', error);
-            }
+                    console.error('Error al agregar producto al carrito:', error);
+                }
         });
     });
 });
 
+
+// try {
+//     const response = await fetch(`/api/carts/${productId}`, { method: 'POST' });
+//     const data = await response.json();
+//     if (data.success) {
+//         console.log('Producto agregado al carrito correctamente');
+//     } else {
+//         console.error('Error al agregar producto al carrito');
+//     }
+// } catch (error) {
+//     console.error('Error al agregar producto al carrito:', error);
+// }
 
 // const btnAddToCart = document.querySelectorAll('#addToCartBtn').addEventListener('click', ()=> {
 //     console.log(btnAddToCart)
