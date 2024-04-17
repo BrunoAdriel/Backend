@@ -4,7 +4,7 @@
 <div>
     <ul>
         {{#each products.docs}}
-            <li id="item-prod-{{id}}">{{title}} {{price}}
+            <li id="item-prod-{{id}}">{{title}} {{description}}: ${{price}}
                 <button id="addToCartBtn" data-product-id="{{id}}">Agregar a carrito</button>
             </li>
         {{/each}}

@@ -11,6 +11,7 @@ const realTimeRouter = require('./routes/views.router')
 const userModel =require('./routes/userModel.router')
 const mongoose = require('mongoose')
 const paginationRouter =require('./routes/pagination.router')
+const cardRouter = require('./routes/card.router')
 
 
 
@@ -31,9 +32,11 @@ app.use(express.json())
 // Mostrar la pantalla de inicio
 app.use('/', viewRouter)
 
+// Conexion a carro
+// app.use('/carts/', cardRouter)
+
 // conexion a paginacion
 app.use('/pagination', paginationRouter)
-
 
 // Mostrar el apartado de Register
 app.use('/api/users', usersRouter)
@@ -52,10 +55,6 @@ app.use('/realTimeProducts', realTimeRouter)
 
 // envio de datos de prodCarro a el path
 app.use('/api/carts', prodCarro)
-
-app.get('/saludo',(req, res)=> {
-    res.end('hola mundo desde express')
-})
 
 app.get('/products', async (req, res) => {
     // Lee el archivo y convierte el contenido de JSON a un objeto JavaScript
