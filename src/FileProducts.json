@@ -1,11 +1,12 @@
-[ {
-  "id": 1,
-  "title": "title1",
-  "description": "Description1",
-  "price": 100,
-  "thumbnail": "thumbnail",
-  "code": 111,
-  "stock": 20
+[
+  {
+    "id": 1,
+    "title": "title1",
+    "description": "Description1",
+    "price": 100,
+    "thumbnail": "thumbnail",
+    "code": 111,
+    "stock": 20
   },
   {
     "id": 2,
@@ -68,6 +69,15 @@
     "price": 900,
     "thumbnail": "test.img",
     "code": "000",
+    "stock": 90
+  },
+  {
+    "id": 9,
+    "title": "lays",
+    "description": "300g",
+    "price": 1200,
+    "thumbnail": "lays.png",
+    "code": "777",
     "stock": 90
   }
 ]
