@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io()
 
 socket.on('newProduct', (product)=>{
     // agregar el nuevo prod al html

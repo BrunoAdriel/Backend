@@ -2,6 +2,7 @@ const { Router } =require('express')
 const fs = require('fs')
 const { Server } = require('socket.io')    
 const ProductManager = require('../../public/js/productManager')
+const io = require('socket.io');
 
 const manager = new ProductManager(`${__dirname}/../FileProducts.json`)
 const router = Router()
@@ -79,7 +80,7 @@ router.post('/realTimeProducts', async (req, res) => {
     console.log(req.body)
     // agrego el producto nuevo
     try{
-        await manager.addProduct(
+        const newProductData = await manager.addProduct(
             req.body.title,
             req.body.description,
             +req.body.price,
@@ -87,14 +88,19 @@ router.post('/realTimeProducts', async (req, res) => {
             req.body.code,
             +req.body.stock);
 
+        // io.emit('newProduct', newProductData);
+        // req.app.get('ws').emit('newProduct', req.body )
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('newProduct', newProductData);
+        } else {
+            console.error("Socket.IO no está disponible");
+        }
         res.redirect('/realTimeProducts')
     }catch(error){
         console.error("Error al agregar el producto nuevo", error)
         res.status(500).send('Error al agregar el producto nuevo')
     }
-    // notifico a los clientes X ws
-
-    req.app.get('ws').emit('newProduct', req.body)
 })
 
 

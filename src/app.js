@@ -12,10 +12,14 @@ const userModel =require('./routes/userModel.router')
 const mongoose = require('mongoose')
 const paginationRouter =require('./routes/pagination.router')
 const cardRouter = require('./routes/card.router')
-
+const http = require('http');
+const socketIo = require('socket.io');
 
 
 const app = express()
+const server = http.createServer(app);
+const io = socketIo(server);
+app.set('io', io);
 
 // Configuracion de HANDLEBARS
 app.engine('handlebars', handlebars.engine())
@@ -152,27 +156,6 @@ app.delete('/products/:prodId', async (req, res)=>{
 //     console.log('servidor listo!')
 // })
 
-// // creando servidor para WebSocket
-// const wsServer = new Server(httpServer)
-
-// const messages = []
-// app.set('ws', wsServer);
-
-// // evento cunado un cliente se conecta
-// wsServer.on('connection', (clientSocket)=>{
-//     console.log(`Cliente conectado, su ID es ${clientSocket.id} `)
-
-//     for(const message of messages){
-//         clientSocket.emit('message', message )
-//     }
-
-//     // chat de clientes
-//     clientSocket.on('new-message', (msg) => {
-//         const message = {id: clientSocket.id, text: msg}
-//         messages.push(message)
-//         wsServer.emit('message', message )
-//     })
-// })
 
 
 // Coneccion Mongoose
@@ -185,6 +168,32 @@ const main = async () =>{
         }
     )
 
+    io.on('connection', (socket) => {
+        console.log('New client connected');
+        // Aquí puedes manejar eventos de Socket.IO, si los necesitas
+    
+        // creando servidor para WebSocket
+        const wsServer = new Server(httpServer)
+
+        const messages = []
+        app.set('ws', wsServer);
+
+        // evento cunado un cliente se conecta
+        wsServer.on('connection', (clientSocket)=>{
+            console.log(`Cliente conectado, su ID es ${clientSocket.id} `)
+
+            for(const message of messages){
+                clientSocket.emit('message', message )
+            }
+
+            // chat de clientes
+            clientSocket.on('new-message', (msg) => {
+                const message = {id: clientSocket.id, text: msg}
+                messages.push(message)
+                wsServer.emit('message', message )
+            })
+        })
+    });
 
     app.listen(8080, () => {
         console.log('Server up!')

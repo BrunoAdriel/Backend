@@ -9,27 +9,7 @@
       "thumbnail": "thumbnail",
       "code": 111,
       "stock": 20,
-      "quantity": 22
-    },
-    {
-      "id": 3,
-      "title": "dorito",
-      "description": "Description2",
-      "price": 200,
-      "thumbnail": "thumbnail",
-      "code": 222,
-      "stock": 10,
-      "quantity": 1
-    },
-    {
-      "id": 2,
-      "title": "title2",
-      "description": "Description2",
-      "price": 700,
-      "thumbnail": "thumbnail",
-      "code": 212,
-      "stock": 11,
-      "quantity": 1
+      "quantity": 23
     }
   ]
 }

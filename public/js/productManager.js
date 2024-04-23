@@ -1,4 +1,6 @@
 const fs = require('fs').promises;
+const { Product } =require('../../src/models/products.model')
+const mongoose = require('mongoose')
 
 class ProductManager {
 
@@ -63,8 +65,20 @@ class ProductManager {
             const product = { id: this.#getNewId(), title, description, price: numericPrice, thumbnail, code, stock: numericStock };
             this.#products.push(product);
             await this.#saveFile();
-            console.log('Agregado Correctamente');
-        } else {
+
+            // Guardar en MongoDB
+            try {
+                const productModel = new Product(product);
+                await productModel.save();
+                console.log('Producto guardado en MongoDB correctamente');
+            } catch (error) {
+                console.error('Error al guardar el producto en MongoDB:', error);
+                throw error;
+            }
+            
+            // Devolver los datos del nuevo producto para su uso en la vista router
+            return product;
+        }else {
             throw new Error('El código de producto ya existe');
         }
     }
