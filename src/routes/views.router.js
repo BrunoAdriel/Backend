@@ -23,6 +23,12 @@ router.get('/register', (_, res)=>{
     })
 })
 
+// Router Login
+router.get('/login',(_,res)=>{
+    res.render('login',{
+        title:' Inicio de sesion '
+    })
+})
 
 // Router chat
 router.get('/chat', (_, res)=>{
@@ -88,8 +94,6 @@ router.post('/realTimeProducts', async (req, res) => {
             req.body.code,
             +req.body.stock);
 
-        // io.emit('newProduct', newProductData);
-        // req.app.get('ws').emit('newProduct', req.body )
         const io = req.app.get('io');
         if (io) {
             io.emit('newProduct', newProductData);

@@ -21,6 +21,9 @@ const server = http.createServer(app);
 const io = socketIo(server);
 app.set('io', io);
 
+// const sessionMiddleware = require('./users/mongoStorage')
+// app.use(sessionMiddleware)
+
 // Configuracion de HANDLEBARS
 app.engine('handlebars', handlebars.engine())
 app.set('views', `${__dirname}/views`)
