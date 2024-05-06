@@ -4,7 +4,8 @@ const { Server } = require('socket.io')
 const ProductManager = require('../../public/js/productManager')
 const io = require('socket.io');
 const User = require('../models/user.model')
-const { userIsLoggedIn, userIsNotLoggedIn } =require('../middlewear/User.Middlewear')
+const { userIsLoggedIn, userIsNotLoggedIn } =require('../middlewear/User.Middlewear');
+const { title } = require('process');
 const manager = new ProductManager(`${__dirname}/../FileProducts.json`)
 const router = Router()
 
@@ -34,8 +35,8 @@ router.get('/login', userIsNotLoggedIn ,(_,res)=>{
     })
 })
 
-// Rouuter Profile
-router.get('/profile', userIsLoggedIn, userIsNotLoggedIn, async (req,res)=>{
+// Router Profile
+router.get('/profile', userIsLoggedIn, async (req,res)=>{
 
     const idSession = req.session.user._id
 
@@ -49,6 +50,13 @@ router.get('/profile', userIsLoggedIn, userIsNotLoggedIn, async (req,res)=>{
             email: user.email
         }
     })
+})
+
+// Router cambio contraseña
+router.get('/reset_password', userIsNotLoggedIn, (_,res)=>{
+    res.render('reset_password'),{
+        title: 'Cambiar contraseña'
+    }
 })
 
 // Router chat
