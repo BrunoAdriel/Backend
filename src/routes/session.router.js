@@ -3,7 +3,6 @@ const router = Router()
 const User = require('../models/user.model') 
 
 router.post('/login', async (req, res)=>{
-    console.log(req.body)
     const {email, password} = req.body
     if(!email || !password){
         return res.status(400).json({error: 'No se ingreso Email o Contraseña!'})
@@ -27,8 +26,6 @@ router.get('/logout',(req, res)=>{
 
 
 router.post('/register', async (req, res)=>{
-    console.log(req .body)
-
     try{
         const{ firstName, lastName, email, password} = req.body
         const user = await User.create({

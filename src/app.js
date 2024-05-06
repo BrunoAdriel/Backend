@@ -3,7 +3,6 @@ const express = require('express')
 const handlebars = require('express-handlebars')
 const prodCarro = require('./routes/prod.router')
 const viewRouter = require('./routes/views.router')
-const usersRouter = require('./routes/users.router')
 const { Server } = require('socket.io')
 const chatRouter = require('./routes/views.router')
 const homeRouter = require('./routes/views.router')
@@ -48,9 +47,6 @@ app.use('/api/sessions', require('./routes/session.router'))
 
 // conexion a paginacion
 app.use('/pagination', paginationRouter)
-
-// Mostrar el apartado de Register
-app.use('/api/users', usersRouter) //revisar antigua config de register
 
 // Mostrar el chat
 app.use('/chat', chatRouter)

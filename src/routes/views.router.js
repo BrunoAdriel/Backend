@@ -4,7 +4,7 @@ const { Server } = require('socket.io')
 const ProductManager = require('../../public/js/productManager')
 const io = require('socket.io');
 const User = require('../models/user.model')
-
+const { userIsLoggedIn, userIsNotLoggedIn } =require('../middlewear/User.Middlewear')
 const manager = new ProductManager(`${__dirname}/../FileProducts.json`)
 const router = Router()
 
@@ -21,21 +21,21 @@ router.get('/', (req,res)=>{
 })
 
 // Router register
-router.get('/register', (_, res)=>{
+router.get('/register', userIsNotLoggedIn , (_, res)=>{
     res.render('register', {
         title: 'Registro de usuarios'
     })
 })
 
 // Router Login
-router.get('/login',(_,res)=>{
+router.get('/login', userIsNotLoggedIn ,(_,res)=>{
     res.render('login',{
         title:' Inicio de sesion '
     })
 })
 
 // Rouuter Profile
-router.get('/profile', async (req,res)=>{
+router.get('/profile', userIsLoggedIn, userIsNotLoggedIn, async (req,res)=>{
 
     const idSession = req.session.user._id
 
