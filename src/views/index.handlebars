@@ -1,3 +1,13 @@
 <div>
-    <h1>Hola desde hande {{name}}</h1>
+    <h1>Proyecto de {{name}}</h1>
+</div>
+<div>
+    {{#if isNotLoggedIn}}
+        <a href="/login">Login</a>
+        <a href="/register">Registrarse</a>
+    {{/if}}
+
+    {{#if isLoggedIn}}
+    <a href="/profile">Mi Perfil</a>
+    {{/if}}
 </div>

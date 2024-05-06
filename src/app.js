@@ -21,8 +21,9 @@ const server = http.createServer(app);
 const io = socketIo(server);
 app.set('io', io);
 
-// const sessionMiddleware = require('./users/mongoStorage')
-// app.use(sessionMiddleware)
+// session de middlewear mas coneccion al session mongo
+const sessionMiddleware = require('./sessions/sessionStorage')
+app.use(sessionMiddleware)
 
 // Configuracion de HANDLEBARS
 app.engine('handlebars', handlebars.engine())
@@ -42,17 +43,20 @@ app.use('/', viewRouter)
 // Conexion a carro
 // app.use('/carts/', cardRouter)
 
+// conexion a sessionRouter
+app.use('/api/sessions', require('./routes/session.router'))
+
 // conexion a paginacion
 app.use('/pagination', paginationRouter)
 
 // Mostrar el apartado de Register
-app.use('/api/users', usersRouter)
+app.use('/api/users', usersRouter) //revisar antigua config de register
 
 // Mostrar el chat
 app.use('/chat', chatRouter)
 
 // Conexion a userModel de Moongose
-app.use('/api/userModel', userModel)
+app.use('/api/userModel', userModel) //revisar antigua config de register
 
 // Conexion a "HOME"
 app.use('/home', homeRouter)
@@ -153,13 +157,6 @@ app.delete('/products/:prodId', async (req, res)=>{
 
     res.json({ status: 'success', message: 'Producto eliminado correctamente' })
 })
-
-// // coneccion servidor
-// const httpServer = app.listen(8080, () =>{
-//     console.log('servidor listo!')
-// })
-
-
 
 // Coneccion Mongoose
 

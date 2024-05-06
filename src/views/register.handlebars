@@ -1,19 +1,17 @@
 <h2>Formulario de Registro</h2>
-<form action="/api/users" method="post" >
+<form action="/api/sessions/register" method="post" >
 
-    <label for="name">Nombre : </label>
-    <input type="text" id="name" required/>
+    <label for="_name">Nombre : </label>
+    <input type="text" name="firstName" id="_name" required/>
 
-    <label for="last_name">Apellido : </label>
-    <input type="text" id="last_name" required/>
+    <label for="_l_name">Apellido : </label>
+    <input type="text" name="lastName" id="_l_name" required/>
 
-    <label for="email">Email : </label>
-    <input id="email" type="text" required/>
+    <label for="_email">Email : </label>
+    <input id="_email" name="email" type="text" required/>
 
-    <label for="password">Contraseña : </label>
-    <input id="password" type="password" required/>
+    <label for="_pass">Contraseña : </label>
+    <input id="_pass" name="password" type="password" required/>
 
     <button id="formRegister" type="submit" >Enviar !</button>
-
-    <section id="message"></section>
 </form>

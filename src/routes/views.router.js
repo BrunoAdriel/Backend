@@ -3,16 +3,20 @@ const fs = require('fs')
 const { Server } = require('socket.io')    
 const ProductManager = require('../../public/js/productManager')
 const io = require('socket.io');
+const User = require('../models/user.model')
 
 const manager = new ProductManager(`${__dirname}/../FileProducts.json`)
 const router = Router()
 
 // handle index
-router.get('/', (_,res)=>{
+router.get('/', (req,res)=>{
+    const isLoggedIn = ! [null,undefined].includes(req.session.user)
     res.render('index', {
-        title:'Mi pagina backend',
-        name:'perri',
-        useWS: true
+        title:'Proyecto',
+        name:'Backend',
+        useWS: true,
+        isLoggedIn,
+        isNotLoggedIn: !isLoggedIn,
     })
 })
 
@@ -27,6 +31,23 @@ router.get('/register', (_, res)=>{
 router.get('/login',(_,res)=>{
     res.render('login',{
         title:' Inicio de sesion '
+    })
+})
+
+// Rouuter Profile
+router.get('/profile', async (req,res)=>{
+
+    const idSession = req.session.user._id
+
+    const user = await User.findOne({_id: idSession})
+    
+    res.render('prodile', {
+        title: 'My  Profile',
+        user: {
+            firstName: user.firstName,
+            lastName : user.lastName,
+            email: user.email
+        }
     })
 })
 
