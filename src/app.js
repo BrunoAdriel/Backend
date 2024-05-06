@@ -13,6 +13,8 @@ const paginationRouter =require('./routes/pagination.router')
 const cardRouter = require('./routes/card.router')
 const http = require('http');
 const socketIo = require('socket.io');
+const passport = require('passport')
+const initializeStrategy = require('./config/passport.config')
 
 
 const app = express()
@@ -23,6 +25,12 @@ app.set('io', io);
 // session de middlewear mas coneccion al session mongo
 const sessionMiddleware = require('./sessions/sessionStorage')
 app.use(sessionMiddleware)
+
+// coneccion de passport con nuestra app
+initializeStrategy()
+app.use(passport.initialize())
+app.use(passport.session())
+
 
 // Configuracion de HANDLEBARS
 app.engine('handlebars', handlebars.engine())

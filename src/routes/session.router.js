@@ -1,25 +1,16 @@
 const { Router } = require('express')
 const router = Router()
 const User = require('../models/user.model') 
-const { hashPassword, isValidPassword } = require('../utils/hashing')
+const { hashPassword } = require('../utils/hashing')
+const passport = require('passport')
 
-router.post('/login', async (req, res)=>{
-    const {email, password} = req.body
-    if(!email || !password){
-        return res.status(400).json({error: 'No se ingreso Email o Contraseña!'})
-    }
-    // verificar si existe el usuario
-    const user = await User.findOne({email})
-    if (!user){
-        return res.status(401).json({error: 'Usuario no encontrado!'})
-    }
-    // validar password
-    if(!isValidPassword(password, user.password)){
-        return res.status(401).json({error: 'Contraseña invalida!'})
-    }
+router.post('/login', passport.authenticate('login', {failureRedirect: '/api/sessions/faillogin'}), async (req, res)=>{
     // crea session si el usuuario existe
-    req.session.user = { email, _id: user._id.toString() }
+    req.session.user = { email: req.user.email, _id: req.user._id }
     res.redirect('/')
+})
+router.get('/faillogin', (_, res)=>{
+    res.send('Error en la pagina de login!')
 })
 
 // destrir la session y redirigirlo
@@ -30,22 +21,15 @@ router.get('/logout',(req, res)=>{
 })
 
 
-router.post('/register', async (req, res)=>{
-    try{
-        const{ firstName, lastName, email, password} = req.body
-        const user = await User.create({
-            firstName, 
-            lastName, 
-            email, 
-            password: hashPassword(password)
-        })
-        req.session.user = { email, _id: user._id.toString() }
-        res.redirect('/')
-    }catch(error){
-        return res.status(500).json({error: error})
-    }
+router.post('/register', passport.authenticate('register', {failureRedirect: '/api/sessions/failregister'}), async (req, res)=>{
+    console.log('usuario!', req.user)
+    res.redirect('/')
 })
 
+// redirect en caso de falla
+router.get('/failregister', (_, res)=>{
+    res.send('Error en la pagina de registro!')
+})
 
 //Cambio de contraseña
 router.post('/reset_password', async (req, res)=>{
