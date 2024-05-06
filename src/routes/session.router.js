@@ -13,16 +13,35 @@ router.post('/login', async (req, res)=>{
     if (!user){
         return res.status(400).json({error: 'Usuario no encontrado!'})
     }
+    // crea session si el usuuario existe
     req.session.user = { email, _id: user._id.toString() }
     res.redirect('/')
 })
 
-router.post('/register', (req, res)=>{
+// destrir la session y redirigirlo
+router.get('/logout',(req, res)=>{
+    req.session.destroy( _ =>{
+        res.redirect('/')
+    })
+})
+
+
+router.post('/register', async (req, res)=>{
     console.log(req .body)
 
-
-
-    res.redirect('/')
+    try{
+        const{ firstName, lastName, email, password} = req.body
+        const user = await User.create({
+            firstName, 
+            lastName, 
+            email, 
+            password
+        })
+        req.session.user = { email, _id: user._id.toString() }
+        res.redirect('/')
+    }catch(error){
+        return res.status(500).json({error: error})
+    }
 })
 
 module.exports = router;

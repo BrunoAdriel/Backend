@@ -41,7 +41,7 @@ router.get('/profile', async (req,res)=>{
 
     const user = await User.findOne({_id: idSession})
     
-    res.render('prodile', {
+    res.render('profile', {
         title: 'My  Profile',
         user: {
             firstName: user.firstName,
