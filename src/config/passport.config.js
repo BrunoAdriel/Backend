@@ -3,7 +3,7 @@ const { Strategy } = require('passport-local')
 const User = require('../models/user.model')
 const hashUtils = require('../utils/hashing')
 
-const initializeStrategy = () =>{
+const initializePassportStrategy  = () =>{
 // configurar metodo register de passport
     passport.use('register', new Strategy({
         passReqToCallback: true,
@@ -63,4 +63,4 @@ const initializeStrategy = () =>{
         done(null, user)
     })
 }
-module.exports = initializeStrategy
+module.exports = initializePassportStrategy 

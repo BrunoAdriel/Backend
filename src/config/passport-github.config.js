@@ -4,7 +4,7 @@ const User = require('../models/user.model')
 // const hashUtils = require('../utils/hashing')
 const { clientID, clientSecret, callbackURL } =require('./github.private')
 
-const initializeStrategy = () =>{
+const initializeGithubStrategy = () =>{
 
     passport.use('github', new Strategy({
         clientID,
@@ -12,7 +12,6 @@ const initializeStrategy = () =>{
         callbackURL
     }, async(_accessToken, _refreshToken, profile, done)=>{
         try{
-            console.log('Profile github: ', profile)
 
             const user = await User.findOne({ email: profile._json.email})
             if(user){
@@ -44,4 +43,4 @@ const initializeStrategy = () =>{
             done(null, user)
         })
     }
-    module.exports = initializeStrategy
+    module.exports = initializeGithubStrategy

@@ -14,7 +14,8 @@ const cardRouter = require('./routes/card.router')
 const http = require('http');
 const socketIo = require('socket.io');
 const passport = require('passport')
-const initializeStrategy = require('./config/passport-github.config')
+const initializeGithubStrategy = require('./config/passport-github.config')
+const initializePassportStrategy  = require('./config/passport.config')
 
 
 const app = express()
@@ -27,7 +28,8 @@ const sessionMiddleware = require('./sessions/sessionStorage')
 app.use(sessionMiddleware)
 
 // coneccion de passport con nuestra app
-initializeStrategy()
+initializeGithubStrategy()
+initializePassportStrategy ()
 app.use(passport.initialize())
 app.use(passport.session())
 
