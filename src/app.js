@@ -14,7 +14,7 @@ const cardRouter = require('./routes/card.router')
 const http = require('http');
 const socketIo = require('socket.io');
 const passport = require('passport')
-const initializeStrategy = require('./config/passport.config')
+const initializeStrategy = require('./config/passport-github.config')
 
 
 const app = express()

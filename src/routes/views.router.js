@@ -5,7 +5,6 @@ const ProductManager = require('../../public/js/productManager')
 const io = require('socket.io');
 const User = require('../models/user.model')
 const { userIsLoggedIn, userIsNotLoggedIn } =require('../middlewear/User.Middlewear');
-const { title } = require('process');
 const manager = new ProductManager(`${__dirname}/../FileProducts.json`)
 const router = Router()
 
