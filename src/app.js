@@ -17,6 +17,7 @@ const passport = require('passport')
 const initializeGithubStrategy = require('./config/passport-github.config')
 const initializePassportStrategy  = require('./config/passport.config')
 const cookieParser = require('cookie-parser');
+const initializeJWTStrategy = require('./config/passport.jwt.config')
 
 const app = express()
 const server = http.createServer(app);
@@ -30,6 +31,7 @@ app.use(sessionMiddleware)
 // coneccion de passport con nuestra app
 initializeGithubStrategy()
 initializePassportStrategy ()
+initializeJWTStrategy()
 app.use(passport.initialize())
 app.use(passport.session())
 

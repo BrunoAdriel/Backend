@@ -6,8 +6,7 @@ const passport = require('passport')
 const { generateToken } = require('../utils/jwt')
 
 router.post('/login', passport.authenticate('login', {failureRedirect: '/api/sessions/faillogin'}), async (req, res)=>{
-    
-    req.session.user = { email: req.user.email, _id: req.user._id }
+    req.session.user = { email: req.user.email, _id: req.user._id, saludo: "hola!" }
     
     // traigo el generador de token y lo comparo con los datos de usuariopara que meguarde sos datos con el token
     const credentials = req.session.user
@@ -28,7 +27,7 @@ router.get('/logout',(req, res)=>{
     })
 })
 
-
+// Router registro
 router.post('/register', passport.authenticate('register', {failureRedirect: '/api/sessions/failregister'}), async (req, res)=>{
     console.log('usuario!', req.user)
     res.redirect('/')
@@ -64,5 +63,13 @@ router.get('/githubcallback', passport.authenticate('github', {failureRedirect: 
     req.session.user ={_id: req.user._id}
     res.redirect('/')
 })
+
+router.get('/api/users/current', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    return res.json(req.user);
+});
+// router.get('/api/users/current', passport.authenticate('jwt',{ session: false }), async(req,res)=>{
+//     return res.json(req.user)
+    
+// })
 
 module.exports = router;
