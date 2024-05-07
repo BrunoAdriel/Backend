@@ -51,7 +51,7 @@ const initializePassportStrategy  = () =>{
             }
             const credentials = {id: user._id.toString(), email: user.email}
             const accessToken = generateToken(credentials)
-            console.log(accessToken)
+            // console.log(accessToken)
             return done(null, user)
     }catch(error){
         done(error)

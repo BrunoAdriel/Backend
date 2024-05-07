@@ -3,10 +3,18 @@ const router = Router()
 const User = require('../models/user.model') 
 const { hashPassword } = require('../utils/hashing')
 const passport = require('passport')
+const { generateToken } = require('../utils/jwt')
 
 router.post('/login', passport.authenticate('login', {failureRedirect: '/api/sessions/faillogin'}), async (req, res)=>{
-    // crea session si el usuuario existe
+    
     req.session.user = { email: req.user.email, _id: req.user._id }
+    
+    // traigo el generador de token y lo comparo con los datos de usuariopara que meguarde sos datos con el token
+    const credentials = req.session.user
+    const accessToken = generateToken(credentials)
+    res.cookie('accessToken', accessToken, { maxAge: 60 * 60 * 1000 }); //
+
+    // crea session si el usuuario existe
     res.redirect('/')
 })
 router.get('/faillogin', (_, res)=>{

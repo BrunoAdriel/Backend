@@ -16,7 +16,7 @@ const socketIo = require('socket.io');
 const passport = require('passport')
 const initializeGithubStrategy = require('./config/passport-github.config')
 const initializePassportStrategy  = require('./config/passport.config')
-
+const cookieParser = require('cookie-parser');
 
 const app = express()
 const server = http.createServer(app);
@@ -33,6 +33,9 @@ initializePassportStrategy ()
 app.use(passport.initialize())
 app.use(passport.session())
 
+
+//coneccion de cookies
+app.use(cookieParser());
 
 // Configuracion de HANDLEBARS
 app.engine('handlebars', handlebars.engine())
