@@ -2,6 +2,7 @@ const passport = require('passport')
 const { Strategy } = require('passport-local')
 const User = require('../models/user.model')
 const hashUtils = require('../utils/hashing')
+const { generateToken } = require('../utils/jwt')
 
 const initializePassportStrategy  = () =>{
 // configurar metodo register de passport
@@ -48,6 +49,9 @@ const initializePassportStrategy  = () =>{
             if(!hashUtils.isValidPassword(password, user.password)){
                 return done(null, false)
             }
+            const credentials = {id: user._id.toString(), email: user.email}
+            const accessToken = generateToken(credentials)
+            console.log(accessToken)
             return done(null, user)
     }catch(error){
         done(error)

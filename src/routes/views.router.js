@@ -7,6 +7,7 @@ const User = require('../models/user.model')
 const { userIsLoggedIn, userIsNotLoggedIn } =require('../middlewear/User.Middlewear');
 const manager = new ProductManager(`${__dirname}/../FileProducts.json`)
 const router = Router()
+const { verifyToken } = require('../utils/jwt')
 
 // handle index
 router.get('/', (req,res)=>{
@@ -56,6 +57,12 @@ router.get('/reset_password', userIsNotLoggedIn, (_,res)=>{
     res.render('reset_password'),{
         title: 'Cambiar contraseña'
     }
+})
+
+// pagina privada
+router.get('/private', verifyToken , (req, res)=>{
+    const { email } = req.authUser
+    res.send(`Bienvenido a la zona privada ${email}`)
 })
 
 // Router chat
