@@ -30,7 +30,7 @@ app.use(sessionMiddleware)
 
 // coneccion de passport con nuestra app
 initializeGithubStrategy()
-initializePassportStrategy ()
+initializePassportStrategy()
 initializeJWTStrategy()
 app.use(passport.initialize())
 app.use(passport.session())
