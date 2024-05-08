@@ -19,6 +19,7 @@ const initializePassportStrategy  = require('./config/passport.config')
 const cookieParser = require('cookie-parser');
 const initializeJWTStrategy = require('./config/passport.jwt.config')
 
+
 const app = express()
 const server = http.createServer(app);
 const io = socketIo(server);

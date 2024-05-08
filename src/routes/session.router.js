@@ -4,9 +4,12 @@ const User = require('../models/user.model')
 const { hashPassword } = require('../utils/hashing')
 const passport = require('passport')
 const { generateToken } = require('../utils/jwt')
+const  passportMiddlwear  = require('../utils/passport.middlewar')
+const authorizationMiddlewear = require('../utils/authorizationMiddlewar')
+
 
 router.post('/login', passport.authenticate('login', {failureRedirect: '/api/sessions/faillogin'}), async (req, res)=>{
-    req.session.user = { email: req.user.email, _id: req.user._id}
+    req.session.user = { email: req.user.email, _id: req.user._id, role:'user'}
     
     // traigo el generador de token y lo comparo con los datos de usuariopara que meguarde sos datos con el token
     const credentials = req.session.user
@@ -65,7 +68,7 @@ router.get('/githubcallback', passport.authenticate('github', {failureRedirect: 
     res.redirect('/')
 })
 
-router.get('/api/users/current', passport.authenticate('jwt',{ session: false }), async(req,res)=>{
+router.get('/api/users/current', passportMiddlwear('jwt'), authorizationMiddlewear('user'), async(req,res)=>{
     return res.json(req.user);
 });
 

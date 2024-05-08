@@ -18,7 +18,7 @@ const initializeJWTStrategy = () => {
                 return done(null, jwtPayload);
             } else {
                 // Si el usuario no tiene los datos necesarios, devuelve Unauthorized
-                return done(null, false, { message: 'Unauthorized' });
+                return done(null, false, { message: 'No se encontro el usuario con el token asignado' });
             }
         } catch (error) {
             return done(error);
