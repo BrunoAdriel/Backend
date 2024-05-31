@@ -5,7 +5,7 @@ const { hashPassword } = require('../utils/hashing')
 const passport = require('passport')
 const { generateToken } = require('../utils/jwt')
 const  passportMiddlwear  = require('../utils/passport.middlewar')
-const authorizationMiddlewear = require('../utils/authorizationMiddlewar')
+const { authorizationMiddlewear } = require('../utils/authorizationMiddlewar')
 
 
 router.post('/login', passport.authenticate('login', {failureRedirect: '/api/sessions/faillogin'}), async (req, res)=>{
