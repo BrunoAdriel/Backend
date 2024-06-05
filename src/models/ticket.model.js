@@ -2,10 +2,11 @@ const mongoose = require('mongoose')
 
 
 const schema = new mongoose.Schema({
+    _id: {  type: mongoose.Schema.Types.ObjectId, auto: true }, 
     Code: Object,
     Amount: Number,
     Status: String,
-    Date:Number,
+    Date:{ type: Date, default: Date.now },
     Purchaser:{
         type: mongoose.Schema.Types.String,
         ref: 'User'

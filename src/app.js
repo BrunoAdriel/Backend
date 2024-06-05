@@ -80,7 +80,7 @@ app.use('/realTimeProducts', realTimeRouter)
 app.use('/api/carts', prodCarro)
 
 // ticket Controler
-app.use('/api/ticket', require('./controller/ticketRouter'))
+app.use('/api/ticket', require('./routes/ticketRouter'))
 
 app.get('/products', async (req, res) => {
     // Lee el archivo y convierte el contenido de JSON a un objeto JavaScript

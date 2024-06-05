@@ -3,15 +3,15 @@ const TicketModel = require('../../models/ticket.model')
 
 class TicketDAO{
 
-    async getTicket(){
-        try{
-            const ticket = await TicketModel.find()
-            return ticket.map(e => e.toObject())
-        }catch(err){
-            console.error(err)
-            return null
-        }
-    }
+    // async getTicket(){
+    //     try{
+    //         const ticket = await TicketModel.find()
+    //         return ticket.map(e => e.toObject())
+    //     }catch(err){
+    //         console.error(err)
+    //         return null
+    //     }
+    // }
 
     async getTicketById(id){
         try{

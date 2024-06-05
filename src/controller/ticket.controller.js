@@ -2,36 +2,10 @@ const { Ticket, Product } = require('../dao')
 const ticketModel = require('../models/ticket.model')
 const carrito = require('../carrito.json')
 const passportMiddlwear = require('../utils/passport.middlewar')
-
 const { v4: uuidv4 } = require('uuid');
-
-const ProductDAO = new Product()
 const TicketDAO = new Ticket()
 
 module.exports = {
-
-    getTicket: async (_, res) => {
-        const ticket = await TicketDAO.getTicket()
-        if(!ticket){
-            return res.sendError('Something went wrong!')
-        }res.sendSuccess(ticket)
-    },
-
-    getTicketById: async(req,res) => {
-        try{
-            const id = req.params.id
-            const ticket = await TicketDAO.findTicketById(id)
-            if(!ticket){
-                return ticket === false
-                ? res.sendError ({ message:'Not Found!'}, 404)
-                : res.sendError ({ message:'Something went wrong!'})
-            }
-            res.sendSuccess(ticket)
-        }catch(err){
-            console.error(err)
-            return null
-        }
-    },
 
     createTicket: async (req, res) => { 
         try {
@@ -54,6 +28,7 @@ module.exports = {
 
                 // Crear el ticket 
                 const ticketOrder = await TicketDAO.createTicket({
+
                     Code: ticketCode,
                     Amount: totalPrice,
                     Status: 'pending',
@@ -64,6 +39,7 @@ module.exports = {
 
                 // Pasaje y guardado de datos
                 const ticketModel = {
+                    id: ticketOrder._id,
                     Code: ticketOrder.Code,
                     Amount: ticketOrder.Amount,
                     Status: ticketOrder.Status,
@@ -71,13 +47,46 @@ module.exports = {
                     Purchaser: userEmail, 
                     Products: ticketOrder.Products
                 };
-                
-                console.log(ticketModel); 
                 res.json({ status: 'success', ticketModel })
+                
             });
-}    catch(err){
-    console.error('Error al crear el Ticket:', err.message)
-}
+        }catch(err){
+            console.error('Error al crear el Ticket:', err.message)
+        }
+},
+
+resolveTicket : async (req, res) => {
+    try {
+        const ticketId = req.params.id; 
+        const ticket = await TicketDAO.getTicketById(ticketId);
+
+        if (!ticket) {
+            return res.status(404).json({ status: 'error', message: 'Ticket not found!' });
+        }
+
+        let notInStock = [];
+
+        for(const prods of carrito.products){
+            if( prods.stock < prods.quantity){
+                notInStock.push({
+                    productId: prods.id,
+                    productName: prods.name,
+                    stockDisponible: prods.stock,
+                    stockSolicitado: prods.quantity
+                })}
+        }
+        
+        if(notInStock.length > 0 ){
+            ticketModel.status = 'Canceled'
+            return res.json({ status:'error/canceled', message:'Stock insuficiente en el pedido', notInStock })
+        }
+
+        res.json({ status:'Aprobado!', ticket })
+
+    } catch (err) {
+        console.error('Error al resolver el Ticket:', err.message);
+        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+    }
 }
 }
 
