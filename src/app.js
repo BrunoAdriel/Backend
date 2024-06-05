@@ -79,6 +79,9 @@ app.use('/realTimeProducts', realTimeRouter)
 // envio de datos de prodCarro a el path
 app.use('/api/carts', prodCarro)
 
+// ticket Controler
+app.use('/api/ticket', require('./controller/ticketRouter'))
+
 app.get('/products', async (req, res) => {
     // Lee el archivo y convierte el contenido de JSON a un objeto JavaScript
     const data = await fs.promises.readFile(__dirname + '/../../Backend/src/FileProducts.json', 'utf-8');

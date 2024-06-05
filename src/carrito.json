@@ -10,6 +10,16 @@
       "code": 111,
       "stock": 20,
       "quantity": 23
+    },
+    {
+      "id": 3,
+      "title": "dorito",
+      "description": "Description2",
+      "price": 200,
+      "thumbnail": "thumbnail",
+      "code": 222,
+      "stock": 10,
+      "quantity": 1
     }
   ]
 }

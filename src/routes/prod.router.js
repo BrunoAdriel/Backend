@@ -32,7 +32,7 @@ router.get('/', async (req, res) => {
 });
 
 // Ruta POST para agregar un producto al carrito
-router.post('/:pid', handlePolicies([USER]) ,async (req, res) => {
+router.post('/:pid' ,async (req, res) => {
     try {
         const pid = parseInt(req.params.pid);
         const productToAdd = await Products.products.findOne({ id: pid });
