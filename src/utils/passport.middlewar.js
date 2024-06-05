@@ -7,7 +7,7 @@ const passportMiddlwear = strategy =>{
         const passportAutenticate = passport.authenticate(strategy, function(err, user, info){
 
             if(err){
-                returnnext(err)
+                return next(err)
             }
             if(!user){
                 return res.status(401).send({

@@ -2,12 +2,12 @@ const mongoose = require('mongoose')
 
 
 const schema = new mongoose.Schema({
-    Code: Number,
+    Code: Object,
     Amount: Number,
     Status: String,
     Date:Number,
     Purchaser:{
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.String,
         ref: 'User'
     },
     Products:{

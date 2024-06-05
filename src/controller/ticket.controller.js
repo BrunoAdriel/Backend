@@ -1,7 +1,9 @@
 const { Ticket, Product } = require('../dao')
 const ticketModel = require('../models/ticket.model')
+const carrito = require('../carrito.json')
+const passportMiddlwear = require('../utils/passport.middlewar')
 
-const carrito = require('../carrito.json');
+const { v4: uuidv4 } = require('uuid');
 
 const ProductDAO = new Product()
 const TicketDAO = new Ticket()
@@ -32,33 +34,47 @@ module.exports = {
     },
 
     createTicket: async (req, res) => { 
+        try {
+            // Middleware para obligar a autenticar y obtener el email
+            await passportMiddlwear('local')(req, res, async () => {
+                
+                const totalPrice = carrito.products.reduce((acc, producto) => {
+                    return acc + (producto.price * producto.quantity);
+                }, 0);
 
-    try{
-        const totalPrice = carrito.products.reduce((acc, producto)=>{
-            return acc + (producto.price * producto.quantity)
-        }, 0)
+                const currentDate = new Date();
+                // manejo del email para que si no esta registrado lo redireccione y para poder devolver el ticket
+                const userEmail = req.user ? req.user.email : null;
+                if (!userEmail) {
+                    return res.redirect('/login')
+                }
 
-        const currentDate = new Date()
-        // console.log(currentDate)
-    
-    const ticketOrder = await TicketDAO.createTicket({
-        Code: Math.floor(Math.random() * 101),
-        Amount: totalPrice,
-        Status: 'pending',
-        Date: currentDate,
-        // purchase: user.emial,
-        Products: carrito.products,
-    })
-    const ticketModel = {
-        Code: ticketOrder.Code,
-        Amount: ticketOrder.Amount,
-        Status: ticketOrder.Status,
-        Date: currentDate,
-        // Purchaser: ticketOrder.purchaser,
-        Products: ticketOrder.Products
-    };
-    
-    console.log(ticketModel); 
+                // Code unico y autogenerado
+                const ticketCode = uuidv4();
+
+                // Crear el ticket 
+                const ticketOrder = await TicketDAO.createTicket({
+                    Code: ticketCode,
+                    Amount: totalPrice,
+                    Status: 'pending',
+                    Date: currentDate,
+                    Purchaser: userEmail, 
+                    Products: carrito.products,
+                });
+
+                // Pasaje y guardado de datos
+                const ticketModel = {
+                    Code: ticketOrder.Code,
+                    Amount: ticketOrder.Amount,
+                    Status: ticketOrder.Status,
+                    Date: currentDate,
+                    Purchaser: userEmail, 
+                    Products: ticketOrder.Products
+                };
+                
+                console.log(ticketModel); 
+                res.json({ status: 'success', ticketModel })
+            });
 }    catch(err){
     console.error('Error al crear el Ticket:', err.message)
 }
