@@ -1,0 +1,37 @@
+        <div>
+        <h1>Finalizar Compra!</h1>
+    </div>
+    <div>
+        <h2>Ingresa el ID del Ticket</h2>
+        <form id="ticketForm" action="/purchase" method="post">
+            <label for="ticketId">ID del Ticket:</label>
+            <input required type="text" id="ticketId" name="id">
+            <button type="submit">Finalizar Compra</button>
+        </form>
+        <div id="result"></div>
+    </div>
+    <script>
+        document.getElementById('ticketForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const ticketId = formData.get('id');
+            
+            const response = await fetch('/api/ticket/purchase', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: ticketId })
+            });
+
+            const result = await response.json();
+            const resultDiv = document.getElementById('result');
+
+            if (result.status === 'Aprobado!') {
+                resultDiv.innerHTML = `<p>Compra aprobada: ${JSON.stringify(result.ticket)}</p>`;
+            } else {
+                resultDiv.innerHTML = `<p>${result.message}: ${JSON.stringify(result.notInStock || '')}</p>`;
+            }
+        });
+    </script>
