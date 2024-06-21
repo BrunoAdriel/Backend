@@ -4,13 +4,9 @@ const handlebars = require('express-handlebars')
 const prodCarro = require('./routes/prod.router')
 const viewRouter = require('./routes/views.router')
 const { Server } = require('socket.io')
-const chatRouter = require('./routes/views.router')
-const homeRouter = require('./routes/views.router')
-const realTimeRouter = require('./routes/views.router')
 const userModel =require('./routes/userModel.router')
 const mongoose = require('mongoose')
 const paginationRouter =require('./routes/pagination.router')
-const cardRouter = require('./routes/card.router')
 const http = require('http');
 const socketIo = require('socket.io');
 const passport = require('passport')
@@ -55,9 +51,6 @@ app.use(express.json())
 // Mostrar la pantalla de inicio
 app.use('/', viewRouter)
 
-// Conexion a carro
-// app.use('/carts/', cardRouter)
-
 // conexion a sessionRouter
 app.use('/api/sessions', require('./routes/session.router'))
 
@@ -65,16 +58,16 @@ app.use('/api/sessions', require('./routes/session.router'))
 app.use('/pagination', paginationRouter)
 
 // Mostrar el chat
-app.use('/chat', chatRouter)
+app.use('/chat', viewRouter)
 
 // Conexion a userModel de Moongose
 app.use('/api/userModel', userModel) //revisar antigua config de register
 
 // Conexion a "HOME"
-app.use('/home', homeRouter)
+app.use('/home', viewRouter)
 
 // Conexion a "RealTimeProducts"
-app.use('/realTimeProducts', realTimeRouter)
+app.use('/realTimeProducts', viewRouter)
 
 // envio de datos de prodCarro a el path
 app.use('/api/carts', prodCarro)
