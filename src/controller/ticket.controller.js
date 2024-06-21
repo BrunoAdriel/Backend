@@ -69,7 +69,7 @@ resolveTicket : async (req, res) => {
             if( prods.stock < prods.quantity){
                 notInStock.push({
                         productId: prods.id,
-                        productName: prods.name,
+                        productName: prods.title,
                         stockDisponible: prods.stock,
                         stockSolicitado: prods.quantity
                         })
@@ -77,7 +77,7 @@ resolveTicket : async (req, res) => {
             if (prods.quantity === 0 ){
                 quantityProds.push({
                     productId: prods.id,                        
-                    productName: prods.name,
+                    productName: prods.title,
                     stockDisponible: prods.stock,
                     stockSolicitado: prods.quantity
                     })
@@ -85,7 +85,7 @@ resolveTicket : async (req, res) => {
             if(prods.quantity < 0 ){
                 negativeQuantity.push({
                     productId: prods.id,
-                    productName: prods.name,
+                    productName: prods.title,
                     stockDisponible: prods.stock,
                     stockSolicitado: prods.quantity
                     })
@@ -94,14 +94,20 @@ resolveTicket : async (req, res) => {
         if(notInStock.length > 0 || quantityProds.length > 0 || negativeQuantity.length > 0){
             ticketModel.status = 'Cancelado!'
             let errorMessage = 'Stock insuficiente para tu pedido'
-            if(quantityProds.length > 0){
-                errorMessage +='/ Productos con cantidad cero:'
-                quantityProds.forEach(e=> errorMessage += `${e.productName}`)
+            if (quantityProds.length > 0) {
+                errorMessage += ' / Productos con cantidad cero:';
+                quantityProds.forEach(prod => {
+                    errorMessage += ` ${prod.productName}`;
+                });
             }
-            if(negativeQuantity.length > 0){
-                errorMessage += '/ Productos con cantidad negativa:'
+            if (negativeQuantity.length > 0) {
+                errorMessage += ' / Productos con cantidad negativa:';
+                negativeQuantity.forEach(prod => {
+                    errorMessage += ` ${prod.productName}`;
+                });
             }
-            return res.json({ status: 'error/cancelado', message: errorMessage, notInStock, quantityProds, negativeQuantity})
+
+            return res.json({ status: 'error/cancelado', message: errorMessage});
         }
         res.json({ status:'Aprobado!', ticket })
     
