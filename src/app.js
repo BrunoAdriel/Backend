@@ -1,210 +1,189 @@
-const fs = require('fs')
-const express = require('express')
-const handlebars = require('express-handlebars')
-const prodCarro = require('./routes/prod.router')
-const viewRouter = require('./routes/views.router')
-const { Server } = require('socket.io')
-const userModel =require('./routes/userModel.router')
-const mongoose = require('mongoose')
-const paginationRouter =require('./routes/pagination.router')
+const fs = require('fs');
+const express = require('express');
+const handlebars = require('express-handlebars');
+const prodCarro = require('./routes/prod.router');
+const viewRouter = require('./routes/views.router');
+const { Server } = require('socket.io');
+const userModel = require('./routes/userModel.router');
+const mongoose = require('mongoose');
+const paginationRouter = require('./routes/pagination.router');
 const http = require('http');
-const socketIo = require('socket.io');
-const passport = require('passport')
-const initializeGithubStrategy = require('./config/passport-github.config')
-const initializePassportStrategy  = require('./config/passport.config')
+const passport = require('passport');
+const initializeGithubStrategy = require('./config/passport-github.config');
+const initializePassportStrategy = require('./config/passport.config');
 const cookieParser = require('cookie-parser');
-const initializeJWTStrategy = require('./config/passport.jwt.config')
+const initializeJWTStrategy = require('./config/passport.jwt.config');
+const cluster = require('cluster');
+const { cpus } = require('os');
 
+// Session de middlewear mas coneccion al session mongo
+const sessionMiddleware = require('./sessions/sessionStorage');
 
-const app = express()
-const server = http.createServer(app);
-const io = socketIo(server);
-app.set('io', io);
+if (cluster.isPrimary) {
+    console.log(`Proceso primario: ${process.pid}`);
 
-// session de middlewear mas coneccion al session mongo
-const sessionMiddleware = require('./sessions/sessionStorage')
-app.use(sessionMiddleware)
+    const numCpus = cpus().length;
+    for (let i = 0; i < numCpus; i++) {
+        cluster.fork();
+    }
 
-// coneccion de passport con nuestra app
-initializeGithubStrategy()
-initializePassportStrategy()
-initializeJWTStrategy()
-app.use(passport.initialize())
-app.use(passport.session())
+    cluster.on('exit', (worker, code, signal) => {
+        console.log(`Worker ${worker.process.pid} terminado. Código: ${code}, señal: ${signal}`);
+        console.log('Iniciando un nuevo worker...');
+        cluster.fork();
+    });
+} else {
+    const app = express();
+    const server = http.createServer(app);
 
+    // creando servidor para WebSocket
+    const io = new Server(server);
 
-//coneccion de cookies
-app.use(cookieParser());
-
-// Configuracion de HANDLEBARS
-app.engine('handlebars', handlebars.engine())
-app.set('views', `${__dirname}/views`)
-app.set('view engine', 'handlebars')
-
-// setea la carpeta public como estatica
-app.use(express.static(`${__dirname}/../public`))
-
-// Permitir el envio de informacion mediante Formularios y JSON 
-app.use(express.urlencoded({ extended: true }))
-app.use(express.json())
-
-// Mostrar la pantalla de inicio
-app.use('/', viewRouter)
-
-// conexion a sessionRouter
-app.use('/api/sessions', require('./routes/session.router'))
-
-// conexion a paginacion
-app.use('/pagination', paginationRouter)
-
-// Mostrar el chat
-app.use('/chat', viewRouter)
-
-// Conexion a userModel de Moongose
-app.use('/api/userModel', userModel) //revisar antigua config de register
-
-// Conexion a "HOME"
-app.use('/home', viewRouter)
-
-// Conexion a "RealTimeProducts"
-app.use('/realTimeProducts', viewRouter)
-
-// envio de datos de prodCarro a el path
-app.use('/api/carts', prodCarro)
-
-// ticket Controler
-app.use('/api/ticket', require('./routes/ticketRouter'))
-
-app.get('/products', async (req, res) => {
-    // Lee el archivo y convierte el contenido de JSON a un objeto JavaScript
-    const data = await fs.promises.readFile(__dirname + '/../../Backend/src/FileProducts.json', 'utf-8');
-    let products = JSON.parse(data);
+    app.set('io', io);
+    // Activar la coneccion a mongo
+    app.use(sessionMiddleware);
+    // Coneccion de passport con nuestra app
+    initializeGithubStrategy();
+    initializePassportStrategy();
+    initializeJWTStrategy();
+    app.use(passport.initialize());
+    app.use(passport.session());
     
-    // Si 'limit' es un número, limita la cantidad de productos devueltos
-    const limit = parseInt(req.query.limit); 
-    if (!isNaN(limit)) {
-        products = products.slice(0, limit);
-    }
-    res.json(products);
-});
+    //Coneccion de cookies
+    app.use(cookieParser());
 
-app.get('/products/:pId', async (req, res) => {
-    const pId = parseInt(req.params.pId);
-    const data = await fs.promises.readFile(__dirname + '/../../Backend/src/FileProducts.json', 'utf-8');
-    const products = JSON.parse(data);
+    // Configuracion de HANDLEBARS
+    app.engine('handlebars', handlebars.engine());
+    app.set('views', `${__dirname}/views`);
+    app.set('view engine', 'handlebars');
 
-    const productFound = products.find(p => p.id === pId);
+    // Setea la carpeta public como estatica
+    app.use(express.static(`${__dirname}/../public`));
+    app.use(express.urlencoded({ extended: true }));
+    app.use(express.json());
 
-    if (!productFound) {
-        res.send({status: 'ERROR', message: 'Producto no encontrado'});
-    } else {
-        res.json(productFound);
-    }
-});
+    //Vinculaciones hacia toda la pagina
+    app.use('/', viewRouter);
+    app.use('/api/sessions', require('./routes/session.router'));
+    app.use('/pagination', paginationRouter);
+    app.use('/chat', viewRouter);
+    app.use('/api/userModel', userModel);
+    app.use('/home', viewRouter);
+    app.use('/realTimeProducts', viewRouter);
+    app.use('/api/carts', prodCarro);
+    app.use('/api/ticket', require('./routes/ticketRouter'));
 
-app.post('/products', async (req, res)=>{
-  // chekea que los campos esten completos, sino devuelve el error400
-const requiredFields = ['title', 'description', 'price', 'thumbnail', 'code', 'stock'];
-for (const field of requiredFields) {
-    if (!req.body[field]) {
-        return res.status(400).json({ status: 'error', message: `El campo '${field}' es obligatorio` });
-    }
-}
+    app.get('/products', async (req, res) => {
+        // Lee el archivo y convierte el contenido de JSON a un objeto JavaScript
+        const data = await fs.promises.readFile(__dirname + '/../../Backend/src/FileProducts.json', 'utf-8');
+        let products = JSON.parse(data);
 
-const data = await fs.promises.readFile(__dirname + '/../../Backend/src/FileProducts.json', 'utf-8');
-const products = JSON.parse(data);
-
-const newProd = req.body;
-
-  // Asigna un nuevo ID al producto
-const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-newProd.id = newId;
-products.push(newProd);
-
-  // Guarda el array actualizado de vuelta en el archivo
-    await fs.promises.writeFile(__dirname + '/../../Backend/src/FileProducts.json', JSON.stringify(products, null, 2));
-
-    res.json({ status: 'success', product: newProd });
-})
-
-app.put('/products/:pid', async (req, res)=>{
-    const data = await fs.promises.readFile(__dirname + '/../../Backend/src/FileProducts.json', 'utf-8');
-    let products = JSON.parse(data);
-    const prodId = parseInt(req.params.pid);
-    const prodData = req.body;
-    delete prodData.id;
-
-    const prodIdx = products.findIndex(product => product.id === prodId);
-
-    if (prodIdx < 0 ) {
-        return res.status(404).json({ status: 'error', message: 'Producto no encontrado' });
-    }
-
-  // Actualiza los datos del producto y aseguramos del id sea el mismo 
-    products[prodIdx] = { ...products[prodIdx], ...prodData, id:prodId };
-
-    await fs.promises.writeFile(__dirname + '/../../Backend/src/FileProducts.json', JSON.stringify(products, null, 2));
-
-    res.json({ status: 'success', product: products[prodIdx] });
-})
-
-app.delete('/products/:prodId', async (req, res)=>{
-    const data = await fs.promises.readFile(__dirname + '/../../Backend/src/FileProducts.json', 'utf-8');
-    let products = JSON.parse(data);
-    const prodId = parseInt(req.params.prodId);
-    const prodIdx = products.findIndex(product => product.id === prodId);
-
-    if (prodIdx < 0) {
-        return res.status(404).json({ status: 'error', message: 'Producto no encontrado' });
-    }
-
-  // Elimina el producto con la cantidad que ponga despues de la "," en esa posicion
-    products.splice(prodIdx, 1);
-
-    await fs.promises.writeFile(__dirname + '/../../Backend/src/FileProducts.json', JSON.stringify(products, null, 2));
-
-    res.json({ status: 'success', message: 'Producto eliminado correctamente' })
-})
-
-// Coneccion Mongoose
-
-const main = async () =>{
-    await mongoose.connect(
-        'mongodb+srv://adrielbruno08:Kq0gHxHj98JQCrBi@codertest.iijpsgz.mongodb.net/?retryWrites=true&w=majority&appName=CoderTest',
-        {
-            dbName: 'coder-test'
+        // Si 'limit' es un número, limita la cantidad de productos devueltos
+        const limit = parseInt(req.query.limit);
+        if (!isNaN(limit)) {
+            products = products.slice(0, limit);
         }
-    )
-
-    io.on('connection', (socket) => {
-        console.log('New client connected');
-        // Aquí puedes manejar eventos de Socket.IO, si los necesitas
-    
-        // creando servidor para WebSocket
-        const wsServer = new Server(httpServer)
-
-        const messages = []
-        app.set('ws', wsServer);
-
-        // evento cunado un cliente se conecta
-        wsServer.on('connection', (clientSocket)=>{
-            console.log(`Cliente conectado, su ID es ${clientSocket.id} `)
-
-            for(const message of messages){
-                clientSocket.emit('message', message )
-            }
-
-            // chat de clientes
-            clientSocket.on('new-message', (msg) => {
-                const message = {id: clientSocket.id, text: msg}
-                messages.push(message)
-                wsServer.emit('message', message )
-            })
-        })
+        res.json(products);
     });
 
-    app.listen(8080, () => {
-        console.log('Server up!')
-    })
+    app.get('/products/:pId', async (req, res) => {
+        const pId = parseInt(req.params.pId);
+        const data = await fs.promises.readFile(__dirname + '/../../Backend/src/FileProducts.json', 'utf-8');
+        const products = JSON.parse(data);
+        const productFound = products.find(p => p.id === pId);
+        if (!productFound) {
+            res.send({ status: 'ERROR', message: 'Producto no encontrado' });
+        } else {
+            res.json(productFound);
+        }
+    });
+
+    app.post('/products', async (req, res) => {
+        // chekea que los campos esten completos, sino devuelve el error400
+        const requiredFields = ['title', 'description', 'price', 'thumbnail', 'code', 'stock'];
+        for (const field of requiredFields) {
+            if (!req.body[field]) {
+                return res.status(400).json({ status: 'error', message: `El campo '${field}' es obligatorio` });
+            }
+        }
+
+        const data = await fs.promises.readFile(__dirname + '/../../Backend/src/FileProducts.json', 'utf-8');
+        const products = JSON.parse(data);
+
+        const newProd = req.body;
+        const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+        newProd.id = newId;
+        products.push(newProd);
+
+        // Guarda el array actualizado de vuelta en el archivo
+        await fs.promises.writeFile(__dirname + '/../../Backend/src/FileProducts.json', JSON.stringify(products, null, 2));
+
+        res.json({ status: 'success', product: newProd });
+    });
+
+    app.put('/products/:pid', async (req, res) => {
+        const data = await fs.promises.readFile(__dirname + '/../../Backend/src/FileProducts.json', 'utf-8');
+        let products = JSON.parse(data);
+        const prodId = parseInt(req.params.pid);
+        const prodData = req.body;
+        delete prodData.id;
+
+        const prodIdx = products.findIndex(product => product.id === prodId);
+
+        if (prodIdx < 0) {
+            return res.status(404).json({ status: 'error', message: 'Producto no encontrado' });
+        }
+
+        // Actualiza los datos del producto y aseguramos del id sea el mismo 
+        products[prodIdx] = { ...products[prodIdx], ...prodData, id: prodId };
+
+        await fs.promises.writeFile(__dirname + '/../../Backend/src/FileProducts.json', JSON.stringify(products, null, 2));
+
+        res.json({ status: 'success', product: products[prodIdx] });
+    });
+
+    app.delete('/products/:prodId', async (req, res) => {
+        const data = await fs.promises.readFile(__dirname + '/../../Backend/src/FileProducts.json', 'utf-8');
+        let products = JSON.parse(data);
+        const prodId = parseInt(req.params.prodId);
+        const prodIdx = products.findIndex(product => product.id === prodId);
+
+        if (prodIdx < 0) {
+            return res.status(404).json({ status: 'error', message: 'Producto no encontrado' });
+        }
+
+        // Elimina el producto con la cantidad que ponga despues de la "," en esa posicion
+        products.splice(prodIdx, 1);
+
+        await fs.promises.writeFile(__dirname + '/../../Backend/src/FileProducts.json', JSON.stringify(products, null, 2));
+
+        res.json({ status: 'success', message: 'Producto eliminado correctamente' });
+    });
+
+    // Coneccion Mongoose
+    const main = async () => {
+        await mongoose.connect('mongodb+srv://adrielbruno08:Kq0gHxHj98JQCrBi@codertest.iijpsgz.mongodb.net/?retryWrites=true&w=majority&appName=CoderTest', {
+            dbName: 'coder-test'
+        });
+
+         // Evento cunado un cliente se conecta
+        io.on('connection', (socket) => {
+            console.log('New client connected');
+            // Aca podes manejar eventos de Socket, si los necesitas
+            const messages = [];
+            app.set('ws', io);
+
+            // Chat de clientes
+            socket.on('new-message', (msg) => {
+                const message = { id: socket.id, text: msg };
+                messages.push(message);
+                io.emit('message', message);
+            });
+        });
+
+        server.listen(8080, () => {
+            console.log('Server up!');
+        });
+    };
+    main();
 }
-main()
