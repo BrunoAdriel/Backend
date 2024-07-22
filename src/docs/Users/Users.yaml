@@ -1,0 +1,51 @@
+paths:
+  /api/sessions/login/:
+    post:
+      summary: Devuelve la pagina de ingreso de la pagina
+      tags:
+        - Users
+      responses: 
+        "200":
+          description: "Cuando se logra registrar correctamente "
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  status:
+                    type: string
+                  payload: 
+                    type: array
+                    items:
+                      $ref: '#components/schemas/User'
+        "500":
+          description: "En el caso de que ocurra algun error en el ingreso te redirige a /api/sessions/faillogin "
+
+
+components:
+  schemas: 
+    User:
+      type: object
+      properties:
+        _id:
+          type: ObjectId
+          description: Id del ususario generado por Mongo
+        firstName:
+          type: String
+          description: Nombre del usuario
+        lastName:
+          type: String
+          description: Apellido del usuario
+        role:
+          type: String
+          description: Gerarquia que tiene el usuario para navegar dentro de la pagina
+        password:
+          type: String
+          description: Contraseña del usuario
+      example:
+        _id: "6639443bbb6d9a767796285b"
+        firstName: "adriel"
+        lastName: "bruno"
+        email: "A.Bruno@outlook.com.ar"
+        password: "$2b$10$6ZLd9JjvG3ZwwxcAw1VfQuc8iOtl9t242H.nIRyFh7oMi0jCfQPHi"
+        role: "user"

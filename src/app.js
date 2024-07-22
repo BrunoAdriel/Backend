@@ -15,17 +15,22 @@ const cookieParser = require('cookie-parser');
 const initializeJWTStrategy = require('./config/passport.jwt.config');
 const cluster = require('cluster');
 const { cpus } = require('os');
+const SwaggerJSDoc = require('swagger-jsdoc')
+const { serve, setup } =require('swagger-ui-express')
 
 // Session de middlewear mas coneccion al session mongo
 const sessionMiddleware = require('./sessions/sessionStorage');
 
+
+//Cluster para crear los workers segun los cpus que haya y la regeneracion de los mismos en el caso de inhabilite 
 if (cluster.isPrimary) {
     console.log(`Proceso primario: ${process.pid}`);
 
-    const numCpus = cpus().length;
-    for (let i = 0; i < numCpus; i++) {
-        cluster.fork();
-    }
+    // const numCpus = cpus().length;
+    // for (let i = 0; i < numCpus; i++) {
+    //     cluster.fork();
+    // }
+    cluster.fork();
 
     cluster.on('exit', (worker, code, signal) => {
         console.log(`Worker ${worker.process.pid} terminado. Código: ${code}, señal: ${signal}`);
@@ -72,6 +77,22 @@ if (cluster.isPrimary) {
     app.use('/realTimeProducts', viewRouter);
     app.use('/api/carts', prodCarro);
     app.use('/api/ticket', require('./routes/ticketRouter'));
+
+    //Swagger documentation.
+    const swaggerOptions = {
+        definition: {
+            openapi: '3.0.1',
+            info: {
+                title:'Backend documentation',
+                description:'Backend para envio y cifrado de datos '
+            }
+        },
+        apis:[`${__dirname}/docs/**/*.yaml`]
+    }
+
+    const specs = SwaggerJSDoc(swaggerOptions)
+    app.use('/apidocs', serve, setup(specs))
+
 
     app.get('/products', async (req, res) => {
         // Lee el archivo y convierte el contenido de JSON a un objeto JavaScript
