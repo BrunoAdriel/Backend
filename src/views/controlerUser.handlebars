@@ -1,0 +1,13 @@
+<div>Listado de Usuarios</div>
+<section>
+    <ul>
+        {{#each users}}
+            <li>
+                {{this.email}} - {{this.role}}
+                <button id="deleteUser" data-id="{{this._id}}">Eliminar!</button>
+                <input type="text" class="newRole" placeholder="Nuevo rol">
+                <button id="changeRole" data-id="{{this._id}}">Cambiar de Rol</button>
+            </li>
+        {{/each}}
+    </ul>
+</section>

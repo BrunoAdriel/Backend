@@ -88,6 +88,7 @@ router.get('/api/users/current', passportMiddlwear('jwt'), authorizationMiddlewe
     return res.json(req.user);
 });
 
+// Endpoint para traer todos los usuarios con su nombre, emial y rol
 router.get('/api/users',passportMiddlwear('jwt'),authorizationMiddlewear('admin'),async(_,res)=>{
     try{
         const usersFound = await User.find({},"firstName email role")
@@ -99,6 +100,7 @@ router.get('/api/users',passportMiddlwear('jwt'),authorizationMiddlewear('admin'
     }
 })
 
+// Endpoint que elimina todos los usuarios que no se conectarion en el tiempo de dos dias
 router.delete('/api/users',passportMiddlwear('jwt'),authorizationMiddlewear('admin'), async(_,res)=>{
     try{
         // Calcula el tiempo
@@ -128,5 +130,60 @@ router.delete('/api/users',passportMiddlwear('jwt'),authorizationMiddlewear('adm
         res.status(500).json({message:'Error eliminando ysyarios inactivos, error'})
     }
 })
+
+// Endpoint para ver un listado de los usuarios y poder modificar su rol y eliminarlos
+router.get('/controlerUser',passportMiddlwear('jwt'),authorizationMiddlewear('admin'), async(req,res)=>{
+    try{
+        const users = await User.find({}).lean();
+
+        res.render('controlerUser',{
+            title:'controlerUser',
+            users,
+            scripts: ['controlerUser.js']
+        })
+        
+    }catch(error){
+        console.error('Error obteniendo los usuarios:', error)
+        res.status(500).json({ message: 'Error obteniendo los usuarios' })
+    }
+})
+
+// Endpoint para eliminar los usuarios usando el boton 
+router.delete('/controlerUser/:id', passportMiddlwear('jwt'), authorizationMiddlewear('admin'), async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const deleteUser = await User.findByIdAndDelete(userId);
+
+        if (deleteUser) {
+            res.status(200).json({ message: "Usuario eliminado correctamente!" });
+        } else {
+            res.status(404).json({ message: "Usuario no encontrado!" });
+        }
+    } catch (error) {
+        console.error('Error al eliminar usuario por btn', error);
+        res.status(500).json({ message: "Error al eliminar usuario por btn" });
+    }
+});
+
+
+// Endpoint para actualizar rol de usuario
+router.put('/controlerUser/:id/role', passportMiddlwear('jwt'), authorizationMiddlewear('admin'), async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const { role } = req.body;
+
+        const user = await User.findByIdAndUpdate(userId, { role }, { new: true });
+
+        if (user) {
+            res.status(200).json({ message: 'Rol del usuario actualizado correctamente' });
+        } else {
+            res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+    } catch (error) {
+        console.error('Error actualizando el rol del usuario:', error);
+        res.status(500).json({ message: 'Error actualizando el rol del usuario' });
+    }
+});
+
 
 module.exports = router;
