@@ -22,7 +22,8 @@ const initializePassportStrategy  = () =>{
                 firstName,
                 lastName,
                 email,
-                password: hashUtils.hashPassword(password)
+                password: hashUtils.hashPassword(password),
+                role:"user"
             }
             const result = await User.create(newUser)
             // usuario nuevo creado exitosamente

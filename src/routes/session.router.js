@@ -8,17 +8,31 @@ const  passportMiddlwear  = require('../utils/passport.middlewar')
 const { authorizationMiddlewear } = require('../utils/authorizationMiddlewar')
 
 
-router.post('/login', passport.authenticate('login', {failureRedirect: '/api/sessions/faillogin'}), async (req, res)=>{
-    req.session.user = { email: req.user.email, _id: req.user._id, role:'user'}
-    
-    // traigo el generador de token y lo comparo con los datos de usuariopara que meguarde sos datos con el token
-    const credentials = req.session.user
-    const accessToken = generateToken(credentials)
-    res.cookie('accessToken', accessToken, { maxAge: 60 * 60 * 1000 }); 
 
-    // crea session si el usuuario existe
-    res.redirect('/')
-})
+router.post('/login', passport.authenticate('login', { failureRedirect: '/api/sessions/faillogin' }), async (req, res) => {
+    try {
+        // Obtener el rol desde la base de datos
+        const user = await User.findById(req.user._id).select('role');
+
+        // Configurar la sesión segun el rol 
+        req.session.user = {
+            email: req.user.email,
+            _id: req.user._id,
+            role: user.role
+        };
+
+        // Generar el token JWT con la información actualizada del usuario
+        const credentials = req.session.user;
+        const accessToken = generateToken(credentials);
+
+        // Configurar la cookie con el token
+        res.cookie('accessToken', accessToken, { maxAge: 60 * 60 * 1000 });
+        res.redirect('/');
+    } catch (error) {
+        console.error('Error durante el login:', error);
+        res.status(500).json({ message: 'Error durante el login' });
+    }
+});
 router.get('/faillogin', (_, res)=>{
     res.send('Error en la pagina de login!')
 })
@@ -72,5 +86,17 @@ router.get('/api/users/current', passportMiddlwear('jwt'), authorizationMiddlewe
     return res.json(req.user);
 });
 
+router.get('/api/users',passportMiddlwear('jwt'),authorizationMiddlewear('admin'),async(_,res)=>{
+    try{
+        const usersFound = await User.find({},"firstName email role")
+        return res.json(usersFound)
+    }catch(error){
+        console.error(error);
+            return res.status(500).json({message: 'Error al encontrar la lista de usuarios'})
+        
+    }
+})
+
+router.delete
 
 module.exports = router;
