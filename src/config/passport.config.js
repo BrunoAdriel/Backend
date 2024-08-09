@@ -18,12 +18,15 @@ const initializePassportStrategy  = () =>{
                 // espacio de error por si el usuario ya existe
                 return done(null, false)
             }
+            // defino la coneccion cuando se crea el usuario
+            const lastConnection = new Date()
             const newUser = {
                 firstName,
                 lastName,
                 email,
                 password: hashUtils.hashPassword(password),
-                role:"user"
+                role:"user",
+                lastConnection,
             }
             const result = await User.create(newUser)
             // usuario nuevo creado exitosamente

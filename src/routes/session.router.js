@@ -11,6 +11,9 @@ const { authorizationMiddlewear } = require('../utils/authorizationMiddlewar')
 
 router.post('/login', passport.authenticate('login', { failureRedirect: '/api/sessions/faillogin' }), async (req, res) => {
     try {
+        // Como ya es una funcion async aprovecho para que antes de que siga con lo demas actulice la ultima coneccion
+        await User.findByIdAndUpdate(req.user._id,{ lastConnection: new Date() });
+
         // Obtener el rol desde la base de datos
         const user = await User.findById(req.user._id).select('role');
 
@@ -97,6 +100,19 @@ router.get('/api/users',passportMiddlwear('jwt'),authorizationMiddlewear('admin'
     }
 })
 
-router.delete
+router.delete('/api/users',passportMiddlwear('jwt'),authorizationMiddlewear('admin'), async(_,res)=>{
+    try{
+        // Calcula el tiempo
+        const deleteForInnactivity = new Date(Date.now() - 1 * 60 * 1000)
+    
+        // Elimina usuarios que no se hayan conectado en ese tiempo
+        const result = await User.deleteMany({ lastConnection: { $lt: deleteForInnactivity } })
+        
+        res.json({ message: `${result.deletedCount} usuarios eliminados`})
+    }catch(error){
+        console.error('Error eliminando ysyarios inactivos, error');
+        res.status(500).json({message:'Error eliminando ysyarios inactivos, error'})
+    }
+})
 
 module.exports = router;

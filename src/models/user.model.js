@@ -10,6 +10,7 @@ const schema = new mongoose.Schema({
         unique: true
     },
     password: String,
+    lastConnection: {type: Date}
 })
 
 module.exports = mongoose.model('User', schema, 'users')
