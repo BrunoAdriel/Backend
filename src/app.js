@@ -1,3 +1,4 @@
+require('dotenv').config();
 const fs = require('fs');
 const express = require('express');
 const handlebars = require('express-handlebars');
@@ -20,7 +21,6 @@ const { serve, setup } =require('swagger-ui-express')
 
 // Session de middlewear mas coneccion al session mongo
 const sessionMiddleware = require('./sessions/sessionStorage');
-
 
 //Cluster para crear los workers segun los cpus que haya y la regeneracion de los mismos en el caso de inhabilite 
 if (cluster.isPrimary) {

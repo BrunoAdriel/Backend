@@ -6,8 +6,7 @@ const passport = require('passport')
 const { generateToken } = require('../utils/jwt')
 const  passportMiddlwear  = require('../utils/passport.middlewar')
 const { authorizationMiddlewear } = require('../utils/authorizationMiddlewar')
-
-
+const transport = require('../trasportMail/trasportMail')
 
 router.post('/login', passport.authenticate('login', { failureRedirect: '/api/sessions/faillogin' }), async (req, res) => {
     try {
@@ -103,14 +102,29 @@ router.get('/api/users',passportMiddlwear('jwt'),authorizationMiddlewear('admin'
 router.delete('/api/users',passportMiddlwear('jwt'),authorizationMiddlewear('admin'), async(_,res)=>{
     try{
         // Calcula el tiempo
-        const deleteForInnactivity = new Date(Date.now() - 1 * 60 * 1000)
+        const deleteForInnactivity = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+
+        // Encuentra los usuarios que no se hayan conectadoen ese tiempo
+        const userstoDelete = await User.find({ lastConnection: { $lt: deleteForInnactivity } });
     
         // Elimina usuarios que no se hayan conectado en ese tiempo
         const result = await User.deleteMany({ lastConnection: { $lt: deleteForInnactivity } })
+
+        // Envio de mail a los usuarios eliminados 
+        for(const user of userstoDelete){
+            transport.sendMail({
+                from: 'Adriel Backend',
+                to: user.email,
+                html:`
+                <div>Aviso de Inactividad</div>
+                `,
+                subject:'Se elimino la cuenta del web Backend por inactividad por dos dias'
+            })
+        }
         
-        res.json({ message: `${result.deletedCount} usuarios eliminados`})
+        res.json({ message: `${result.deletedCount} usuarios eliminados y correos enviados`})
     }catch(error){
-        console.error('Error eliminando ysyarios inactivos, error');
+        console.error('Error eliminando usuarios inactivos, error');
         res.status(500).json({message:'Error eliminando ysyarios inactivos, error'})
     }
 })
