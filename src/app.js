@@ -183,6 +183,7 @@ const sessionMiddleware = require('./sessions/sessionStorage');
 
     // Coneccion Mongoose
     const main = async () => {
+        const PORT = process.env.PORT || 8080;
         const connection = await mongoose.connect(process.env.MONGODB_URI, {
             dbName: process.env.MONGODB_DB_NAME
         });
@@ -202,7 +203,7 @@ const sessionMiddleware = require('./sessions/sessionStorage');
         //     });
         // });
 
-        const PORT = process.env.PORT || 8080;
+
 
         server.listen(PORT, () => {
             console.log(`Server up on port ${PORT}!`);
