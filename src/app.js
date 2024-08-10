@@ -23,21 +23,21 @@ const { serve, setup } =require('swagger-ui-express')
 const sessionMiddleware = require('./sessions/sessionStorage');
 
 //Cluster para crear los workers segun los cpus que haya y la regeneracion de los mismos en el caso de inhabilite 
-// if (cluster.isPrimary) {
-//     console.log(`Proceso primario: ${process.pid}`);
+if (cluster.isPrimary) {
+    console.log(`Proceso primario: ${process.pid}`);
 
-//     // const numCpus = cpus().length;
-//     // for (let i = 0; i < numCpus; i++) {
-//     //     cluster.fork();
-//     // }
-//     cluster.fork();
+    // const numCpus = cpus().length;
+    // for (let i = 0; i < numCpus; i++) {
+    //     cluster.fork();
+    // }
+    cluster.fork();
 
-//     cluster.on('exit', (worker, code, signal) => {
-//         console.log(`Worker ${worker.process.pid} terminado. Código: ${code}, señal: ${signal}`);
-//         console.log('Iniciando un nuevo worker...');
-//         cluster.fork();
-//     });
-// } else {
+    cluster.on('exit', (worker, code, signal) => {
+        console.log(`Worker ${worker.process.pid} terminado. Código: ${code}, señal: ${signal}`);
+        console.log('Iniciando un nuevo worker...');
+        cluster.fork();
+    });
+} else {
     const app = express();
     const server = http.createServer(app);
 
@@ -188,20 +188,20 @@ const sessionMiddleware = require('./sessions/sessionStorage');
             dbName: process.env.MONGODB_DB_NAME
         });
 
-        //  // Evento cunado un cliente se conecta
-        // io.on('connection', (socket) => {
-        //     console.log('New client connected');
-        //     // Aca podes manejar eventos de Socket, si los necesitas
-        //     const messages = [];
-        //     app.set('ws', io);
+         // Evento cunado un cliente se conecta
+        io.on('connection', (socket) => {
+            console.log('New client connected');
+            // Aca podes manejar eventos de Socket, si los necesitas
+            const messages = [];
+            app.set('ws', io);
 
-        //     // Chat de clientes
-        //     socket.on('new-message', (msg) => {
-        //         const message = { id: socket.id, text: msg };
-        //         messages.push(message);
-        //         io.emit('message', message);
-        //     });
-        // });
+            // Chat de clientes
+            socket.on('new-message', (msg) => {
+                const message = { id: socket.id, text: msg };
+                messages.push(message);
+                io.emit('message', message);
+            });
+        });
 
 
 
@@ -210,4 +210,4 @@ const sessionMiddleware = require('./sessions/sessionStorage');
         });
     };
     main();
-// }
+}
