@@ -183,7 +183,7 @@ if (cluster.isPrimary) {
 
     // Coneccion Mongoose
     const main = async () => {
-        await mongoose.connect(process.env.MONGODB_URI, {
+        const connection = await mongoose.connect(process.env.MONGODB_URI, {
             dbName: process.env.MONGODB_DB_NAME
         });
 
