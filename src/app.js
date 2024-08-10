@@ -202,8 +202,10 @@ const sessionMiddleware = require('./sessions/sessionStorage');
         //     });
         // });
 
-        server.listen(8080, () => {
-            console.log('Server up!');
+        const PORT = process.env.PORT || 8080;
+
+        server.listen(PORT, () => {
+            console.log(`Server up on port ${PORT}!`);
         });
     };
     main();
