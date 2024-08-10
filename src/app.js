@@ -183,8 +183,8 @@ if (cluster.isPrimary) {
 
     // Coneccion Mongoose
     const main = async () => {
-        await mongoose.connect('mongodb+srv://adrielbruno08:Kq0gHxHj98JQCrBi@codertest.iijpsgz.mongodb.net/?retryWrites=true&w=majority&appName=CoderTest', {
-            dbName: 'coder-test'
+        await mongoose.connect(process.env.MONGODB_URI, {
+            dbName: process.env.MONGODB_DB_NAME
         });
 
          // Evento cunado un cliente se conecta

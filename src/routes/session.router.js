@@ -185,5 +185,4 @@ router.put('/controlerUser/:id/role', passportMiddlwear('jwt'), authorizationMid
     }
 });
 
-
 module.exports = router;
