@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken')
 
-const PRIVATE_KEY = "ol0pñ9ik8jmu7yhnb64fgrt53edw2"
+const PRIVATE_KEY = process.env.PRIVATE_KEY
 
 
 
@@ -20,7 +20,7 @@ const PRIVATE_KEY = "ol0pñ9ik8jmu7yhnb64fgrt53edw2"
             if(err){
                 return res.status(403).json({ error: 'Token Invalido!'})
             }
-            req.authUser = credentials
+            req.user = credentials
             next()
         })
     }

@@ -8,7 +8,7 @@ const { userIsLoggedIn, userIsNotLoggedIn } =require('../middlewear/User.Middlew
 const manager = new ProductManager(`${__dirname}/../FileProducts.json`)
 const router = Router()
 const { verifyToken } = require('../utils/jwt')
-const { handlePolicies } = require('../utils/authorizationMiddlewar');
+const { authorizationMiddlewear } = require('../utils/authorizationMiddlewar');
 const { ADMIN } = require('../policies/policies.constants');
 
 // handle index
@@ -94,7 +94,7 @@ router.get('/home', async(_, res) => {
 });
 
 
-router.get('/realTimeProducts', handlePolicies([ADMIN]) , async (_, res)=>{
+router.get('/realTimeProducts', authorizationMiddlewear('admin') , async (_, res)=>{
     try{
         const products = await manager.getProducts()
 
@@ -119,7 +119,7 @@ router.get('/realTimeProducts', handlePolicies([ADMIN]) , async (_, res)=>{
     }
 })
 
-router.post('/realTimeProducts', handlePolicies([ADMIN]) , async (req, res) => {
+router.post('/realTimeProducts', authorizationMiddlewear('admin') , async (req, res) => {
     console.log(req.body)
     // agrego el producto nuevo
     try{

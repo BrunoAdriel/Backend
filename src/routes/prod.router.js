@@ -1,9 +1,7 @@
 const { Router } = require('express');
 const fs = require('fs').promises;
-const { handlePolicies } = require('../utils/authorizationMiddlewar')
-
+const { authorizationMiddlewear } = require('../utils/authorizationMiddlewar')
 const Products = require('../models/products.model');
-const { USER } = require('../policies/policies.constants');
 
 const router = Router();
 
@@ -32,7 +30,7 @@ router.get('/', async (req, res) => {
 });
 
 // Ruta POST para agregar un producto al carrito
-router.post('/:pid', handlePolicies([USER]) ,async (req, res) => {
+router.post('/:pid', authorizationMiddlewear('user'),async (req, res) => {
     try {
         const pid = parseInt(req.params.pid);
         const productToAdd = await Products.products.findOne({ id: pid });
@@ -99,7 +97,7 @@ router.get('/:cid', async (req,res)=>{
 
 
 // Ruta POST para agregar mas de un producto al carrito
-router.post('/:cid/product/:pid', handlePolicies([USER]) , async (req, res) => {
+router.post('/:cid/product/:pid', authorizationMiddlewear('user') , async (req, res) => {
     try {
         const { cid, pid } = req.params;
         const carritoData = await fs.readFile(__dirname + '/../carrito.json', 'utf-8');

@@ -104,7 +104,7 @@ if (cluster.isPrimary) {
         if (!isNaN(limit)) {
             products = products.slice(0, limit);
         }
-        res.json(products);
+        res.render('products', { products });
     });
 
     app.get('/products/:pId', async (req, res) => {

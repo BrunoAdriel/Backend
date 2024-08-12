@@ -1,24 +1,43 @@
-const {USER, PUBLIC, ADMIN} = require('../policies/policies.constants')
+const User = require('../models/user.model');
+
 module.exports = { 
-    authorizationMiddlewear : (role) =>{
-        return(req, res, next)=>{
-            if(!req.user){
-                return res.status(401).send({error: 'el usuario debe autenticarse!'})
+    authorizationMiddlewear: (role) => {
+        return async (req, res, next) => {
+            if (!req.user) {
+                return res.status(401).send({ error: 'El usuario debe autenticarse!' });
             }
-            if(!req.user.role || req.user.role !== role){
-                return res.status(403).send({error: 'el usuario necesita permisos!'})
+
+            try {
+                if (req.user.role !== role) {
+                    return res.status(403).send({ error: 'El usuario necesita permisos!' });
+                }
+
+                next();
+            } catch (error) {
+                console.error('Error en la autorización:', error);
+                res.status(500).send({ error: 'Error interno del servidor' });
             }
-            next()
-        }
+        };
     },
 
-//middlewear de autenticacion
     handlePolicies: (policies) => {
-        return (req, res, next) => {
-            if(policies [0] === PUBLIC ){
-                return next()
+        return async (req, res, next) => {
+            if (!req.user) {
+                return res.status(401).send({ status: 'error', message: 'Unauthorized' });
             }
-            return res.status(401).send({ status: 'error', message: 'Unautthorized'})
-        }
+
+            try {
+                const hasPermission = policies.some(policy => req.user.role === policy);
+
+                if (!hasPermission) {
+                    return res.status(403).send({ status: 'error', message: 'Forbidden' });
+                }
+
+                next();
+            } catch (error) {
+                console.error('Error en la autorización:', error);
+                res.status(500).send({ error: 'Error interno del servidor' });
+            }
+        };
     }
 }

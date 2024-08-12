@@ -1,0 +1,17 @@
+<h1>Lista de Productos</h1>
+    <ul>
+        {{#each products}}
+            <li>
+                <h2>{{this.title}}</h2>
+                <p>{{this.description}}</p>
+                <p>Precio: ${{this.price}}</p>
+                <p>Stock disponible : {{this.stock}}</p>
+                <form action="/api/carts/{{this.id}}" method="POST">
+                    <input type="hidden" name="productId" value="{{this.id}}">
+                    <label for="quantity">Cantidad:</label>
+                    <input type="number" id="quantity" name="quantity" min="1" value="1">
+                    <button type="submit">Agregar al carrito</button>
+                </form>
+            </li>
+        {{/each}}
+    </ul>

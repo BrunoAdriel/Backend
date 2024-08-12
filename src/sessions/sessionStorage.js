@@ -4,7 +4,7 @@ const session = require('express-session')
 
 const storage = MongoStorage.create({
     dbName:'sessionStorage',
-    mongoUrl: 'mongodb+srv://adrielbruno08:Kq0gHxHj98JQCrBi@codertest.iijpsgz.mongodb.net/?retryWrites=true&w=majority&appName=CoderTest',
+    mongoUrl: process.env.MONGODB_URI,
     ttl: 120
 })
 
