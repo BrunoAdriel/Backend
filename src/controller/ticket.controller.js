@@ -151,8 +151,9 @@ resolveTicket : async (req, res) => {
             <p>gracias por su compra!</p>
             `
         };
-        
-        // Vaciar el carrito
+        await transport.sendMail(mailOptions);
+
+        //Vaciar carrito
         carrito.products = []; 
 
         res.json({ status: 'Aprobado!', ticket });
