@@ -4,7 +4,7 @@
     <ul>
         {{#each products}}
             <li id="product-{{this.id}}">
-                {{this.title}} - Precio: {{this.price}} - Cantidad: {{this.quantity}} - Total a pagar: {{this.price}} * {{this.quantity}}
+                {{this.title}} - Precio: {{this.price}} - Cantidad: {{this.quantity}} 
                 <!-- Botón para eliminar el producto -->
                 <button onclick="deleteProduct({{this.id}}, this)">Eliminar Producto</button>
             </li>
