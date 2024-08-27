@@ -1,4 +1,15 @@
 {
   "id": 1,
-  "products": []
+  "products": [
+    {
+      "id": 1,
+      "title": "title1",
+      "description": "Description1",
+      "price": 100,
+      "thumbnail": "thumbnail",
+      "code": 111,
+      "stock": 20,
+      "quantity": 3
+    }
+  ]
 }

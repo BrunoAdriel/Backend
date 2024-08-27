@@ -2,8 +2,12 @@ const { Ticket, Product } = require('../dao')
 const ticketModel = require('../models/ticket.model')
 const carrito = require('../carrito.json')
 const passportMiddlwear = require('../utils/passport.middlewar')
+const Order = require('../models/order.model');
+const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
 const TicketDAO = new Ticket()
+const nodemailer = require('nodemailer')
+const transport = require('../trasportMail/trasportMail')
 
 module.exports = {
 
@@ -47,7 +51,7 @@ module.exports = {
                     Purchaser: userEmail, 
                     Products: ticketOrder.Products
                 };
-                res.json({ status: 'success', ticketModel })
+                res.json({ status: 'success', ticketId: ticketOrder._id, ticketModel  })
                 
             });
         }catch(err){
@@ -109,7 +113,49 @@ resolveTicket : async (req, res) => {
 
             return res.json({ status: 'error/cancelado', message: errorMessage});
         }
-        res.json({ status:'Aprobado!', ticket })
+
+        // Si todo está en orden, guarda el pedido en la base de datos
+        const order = new Order({
+            ticketId: ticket._id,
+            userId: req.user._id, 
+            products: carrito.products.map(prod => ({
+                productId: prod.id, 
+                productName: prod.title,
+                quantity: prod.quantity,
+                price: prod.price
+            })),
+            status: 'Aprobado'
+        });
+
+        await order.save();
+
+        // Envio de mail
+        const mailOptions = {
+            from: process.env.GMAIL_ACCOUNT,
+            to: req.user.email,
+            subject: 'Confirmación de Pedido',
+            html: `
+            <p>Hola ${req.user.email},</p>
+            <p>Tu pedido ha sido aprobado.</p>
+            <p>Código de Ticket:${ticket._id}</p>
+            <p>Productos comprados</p>
+                <ul>
+                    ${carrito.products.map(prod => `
+                    <li>
+                        <strong>Producto:</strong> ${prod.title}<br>
+                        <strong>Cantidad:</strong> ${prod.quantity}<br>
+                        <strong>Precio:</strong> ${prod.price}
+                        </li>
+                    `).join('')}
+                </ul>
+            <p>gracias por su compra!</p>
+            `
+        };
+        
+        // Vaciar el carrito
+        carrito.products = []; 
+
+        res.json({ status: 'Aprobado!', ticket });
     
     } catch (err) {
         console.error('Error al resolver el Ticket:', err.message);

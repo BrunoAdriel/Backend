@@ -2,7 +2,6 @@ const { Router } = require('express');
 const fs = require('fs').promises;
 const { authorizationMiddlewear } = require('../utils/authorizationMiddlewar')
 const Products = require('../models/products.model');
-const Cart = require('../models/user.model')
 
 const router = Router();
 
