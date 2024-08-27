@@ -2,32 +2,33 @@ const { Router } = require('express');
 const fs = require('fs').promises;
 const { authorizationMiddlewear } = require('../utils/authorizationMiddlewar')
 const Products = require('../models/products.model');
+const Cart = require('../models/user.model')
 
 const router = Router();
 
-// filtrar por cantidad de productos pasados por query
-router.get('/', async (req, res) => {
-    try {
-        const prodFilter = req.query.prodFilter;
-        let products;
-        if (prodFilter) {
-            const numberParse = parseInt(prodFilter, 10);
-            if (numberParse <= 0 || isNaN(numberParse) || !prodFilter) {
-                res.status(404).json({ message: 'Error el filtro de numero debe ser un numero mayor a 0 ' });
-                return;
+    // filtrar por cantidad de productos pasados por query
+    router.get('/', async (req, res) => {
+        try {
+            const prodFilter = req.query.prodFilter;
+            let products;
+            if (prodFilter) {
+                const numberParse = parseInt(prodFilter, 10);
+                if (numberParse <= 0 || isNaN(numberParse) || !prodFilter) {
+                    res.status(404).json({ message: 'Error el filtro de numero debe ser un numero mayor a 0 ' });
+                    return;
+                } else {
+                    products = await Products.products.find({}).limit(numberParse).select('-__v');
+                }
             } else {
-                products = await Products.products.find({}).limit(numberParse).select('-__v');
+                products = await Products.products.find({}).select('-__v');
             }
-        } else {
-            products = await Products.products.find({}).select('-__v');
+            res.json(products);
+        
+        } catch (error) {
+            console.error('Error al cargar los productos:', error);
+            res.status(500).json({ error: 'Error interno del servidor' });
         }
-        res.json(products);
-    
-    } catch (error) {
-        console.error('Error al cargar los productos:', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
-    }
-});
+    });
 
 // Ruta POST para agregar un producto al carrito
 router.post('/:pid', authorizationMiddlewear('user'),async (req, res) => {
@@ -81,19 +82,25 @@ router.post('/:pid', authorizationMiddlewear('user'),async (req, res) => {
 
 
 
-//Ruta GET x ID
-router.get('/:cid', async (req,res)=>{
+// Ruta GET x ID
+router.get('/:cid', async (req, res) => {
     const cid = parseInt(req.params.cid);
-    const carritoData = await fs.readFile(__dirname + '/../carrito.json', 'utf-8')
-    const carrito = JSON.parse(carritoData);
-    const prodFound = carrito.products.find(p=>p.id === cid)
+    try {
+        const carritoData = await fs.readFile(__dirname + '/../carrito.json', 'utf-8');
+        const carrito = JSON.parse(carritoData);
 
-    if(!prodFound){
-        res.status(404).json({ status: 'error', message: 'Producto no encontrado' });
-    }else{
-        res.json(prodFound)
+        if (carrito.id !== cid) {
+            return res.status(404).json({ status: 'error', message: 'Carrito no encontrado' });
+        }
+
+        // Renderizar la vista con los datos del carrito
+        res.render('cart', { products: carrito.products, cid: carrito.id });
+    } catch (error) {
+        console.error('Error al cargar el carrito:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
     }
-})
+});
+
 
 
 // Ruta POST para agregar mas de un producto al carrito

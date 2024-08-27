@@ -1,0 +1,60 @@
+<h1>Carrito de Compras</h1>
+
+{{#if products.length}}
+    <ul>
+        {{#each products}}
+            <li id="product-{{this.id}}">
+                {{this.title}} - Precio: {{this.price}} - Cantidad: {{this.quantity}} - Total a pagar: {{this.price}} * {{this.quantity}}
+                <!-- Botón para eliminar el producto -->
+                <button onclick="deleteProduct({{this.id}}, this)">Eliminar Producto</button>
+            </li>
+        {{/each}}
+    </ul>
+    <!-- Botón para vaciar el carrito -->
+    <button onclick="emptyCart()">Vaciar Carrito</button>
+    <a href="/api/ticket/purchase">Obtener ticket de compra!</a>
+{{else}}
+    <p>Tu carrito está vacío.</p>
+{{/if}}
+
+<a href="/products">Seguir comprando</a>
+
+<script>
+    async function deleteProduct(productId, element) {
+        try {
+            const response = await fetch(`/api/carts/1/product/${productId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                element.parentElement.remove();
+            } else {
+                console.error('Error al eliminar el producto:', await response.text());
+            }
+        } catch (error) {
+            console.error('Error al eliminar el producto:', error);
+        }
+    }
+
+    async function emptyCart() {
+        try {
+            const response = await fetch('/api/carts/1', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                document.querySelector('ul').innerHTML = '<p>Tu carrito está vacío.</p>';
+            } else {
+                console.error('Error al vaciar el carrito:', await response.text());
+            }
+        } catch (error) {
+            console.error('Error al vaciar el carrito:', error);
+        }
+    }
+</script>

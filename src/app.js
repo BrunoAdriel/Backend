@@ -3,6 +3,7 @@ const fs = require('fs');
 const express = require('express');
 const handlebars = require('express-handlebars');
 const prodCarro = require('./routes/prod.router');
+const carrito = require('./routes/card.router');
 const viewRouter = require('./routes/views.router');
 const { Server } = require('socket.io');
 const userModel = require('./routes/userModel.router');
@@ -18,6 +19,7 @@ const cluster = require('cluster');
 const { cpus } = require('os');
 const SwaggerJSDoc = require('swagger-jsdoc')
 const { serve, setup } =require('swagger-ui-express')
+const methodOverride = require('method-override');
 
 // Session de middlewear mas coneccion al session mongo
 const sessionMiddleware = require('./sessions/sessionStorage');
@@ -77,6 +79,10 @@ if (cluster.isPrimary) {
     app.use('/realTimeProducts', viewRouter);
     app.use('/api/carts', prodCarro);
     app.use('/api/ticket', require('./routes/ticketRouter'));
+    app.use('/api', carrito);
+
+    // middlewear method para eliminar productos 
+    app.use(methodOverride('_method'));
 
     //Swagger documentation.
     const swaggerOptions = {
